@@ -1,5 +1,6 @@
 def draw_board(board):
     # запустить цикл, который проходит по всем 3 строкам доски
+    print(board)
     for i in range(3):
         # поставить разделители значений в строке
         print(" | ".join(board[i]))
@@ -18,11 +19,14 @@ def ask_and_make_move(player, board):
         board[x][y] = player
     else:
         print("That spot is already taken. Try again.")
-       ask_and_make_move(player, board)
+
+board = [[" " for i in range(3)] for j in range(3)] # аналог [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']] - красивое решение!
 
 
-board = [[' ',' ',' '], [' ',' ',' '], [' ',' ',' ']]
-
+# call for test
+board[0][0] = 'X'
+print(board)
+draw_board(board)
 ask_and_make_move( 'X', board)
 
 
