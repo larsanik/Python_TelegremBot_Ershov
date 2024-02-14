@@ -1,6 +1,5 @@
 def draw_board(board):
     # запустить цикл, который проходит по всем 3 строкам доски
-    print(board)
     for i in range(3):
         # поставить разделители значений в строке
         print(" | ".join(board[i]))
@@ -35,14 +34,30 @@ def ask_and_make_move(player, board):
     # координаты x, y взять из функции ask_move(player, board)
     make_move(player, board, x, y)
 
-board = [[" " for i in range(3)] for j in range(3)] # аналог [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']] - красивое решение!
-
+def check_win(player, board):
+    # проверяем не стал ли очередной ход выигрышным
+    # проверяем строки
+    for i in range (3):
+        for ii in range(2):
+            print('view ',i)
+            if board[i-1][ii] != board[i-1][ii+1]:
+                print('не совпало =(')
+                continue
+        print('совпало =)')
+        # continue
 
 # call for test
-board[0][0] = 'X'
-print(board)
+#board = [[" " for i in range(3)] for j in range(3)]
+# аналог [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']] - красивое решение с циклами!
+
+board = (['X', 'X', 'X'],
+         ['O', 'X', 'O'],
+         ['O', ' ', 'O'])
+player = 'X'
+#print(board)
 draw_board(board)
-ask_and_make_move( 'X', board)
-draw_board(board)
+#ask_and_make_move( 'X', board)
+#draw_board(board)
+check_win(player, board)
 
 
