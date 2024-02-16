@@ -37,27 +37,44 @@ def ask_and_make_move(player, board):
 def check_win(player, board):
     # проверяем не стал ли очередной ход выигрышным
     # проверяем строки
-    for i in range (3):
-        for ii in range(2):
-            print('view ',i)
-            if board[i-1][ii] != board[i-1][ii+1]:
-                print('не совпало =(')
-                continue
-        print('совпало =)')
-        # continue
+    for i in range(3):
+        str = ''
+        for ii in range(3):
+            str = str + board[i][ii]
+        if str == player * 3:
+            return True
+    # проверяем столбцы
+    for i in range(3):
+        str = ''
+        for ii in range(3):
+            str = str + board[ii][i]
+        if str == player * 3:
+            return True
+    # проверяем диогональ лв-пн
+    str = ''
+    for i in range(3):
+        str = str + board[i][i]
+    if str == player * 3:
+        return True
+    # проверяем диогональ лн-пв
+    str = ''
+    for i in range(3):
+        str = str + board[2-i][i]
+    if str == player * 3:
+        return True
 
 # call for test
 #board = [[" " for i in range(3)] for j in range(3)]
 # аналог [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']] - красивое решение с циклами!
 
-board = (['X', 'X', 'X'],
-         ['O', 'X', 'O'],
-         ['O', ' ', 'O'])
-player = 'X'
+board = (['O', 'X', 'O'],
+         ['X', 'O', 'X'],
+         ['O', 'O', 'X'])
+player = 'O'
 #print(board)
-draw_board(board)
+#draw_board(board)
 #ask_and_make_move( 'X', board)
 #draw_board(board)
-check_win(player, board)
+print(check_win(player, board))
 
 
