@@ -1,5 +1,5 @@
 def draw_board(board):
-    # запустить цикл, который проходит по всем 3 строкам доски
+    # запустить цикл, который проходит по всем  строкам доски
     for i in range(3):
         # поставить разделители значений в строке
         print(" | ".join(board[i]))
@@ -7,13 +7,15 @@ def draw_board(board):
         print("---------")
 
 def ask_move(player, board):
+    # определяем размер доски
+    sze = len(board)
     # дать игроку возможность сделать ход, то есто есть ввести координаты
     x, y = input(f"{player}, Введите x и y координаты (пример 0 0): ").strip().split()
     # преобразовать координаты в целые числа
     x, y = int(x), int(y)
     # задать условие, которое проверяет,
     # находится ли координата в пределах поля и свободно ли место
-    if (0 <= x <= 2) and (0 <= y <= 2) and (board[x][y] == " "):
+    if (0 <= x <= (sze-1)) and (0 <= y <= (sze-1)) and (board[x][y] == " "):
         # если свободно, записать значение игрока (Х или 0) в ячейку
         return(x, y)
     else:
@@ -36,45 +38,47 @@ def ask_and_make_move(player, board):
 
 def check_win(player, board):
     # проверяем не стал ли очередной ход выигрышным
+    # определяем размер доски
+    sze = len(board)
     # проверяем строки
-    for i in range(3):
+    for i in range(sze):
         str = ''
-        for ii in range(3):
+        for ii in range(sze):
             str = str + board[i][ii]
-        if str == player * 3:
+        if str == player * sze:
             return True
     # проверяем столбцы
-    for i in range(3):
+    for i in range(sze):
         str = ''
-        for ii in range(3):
+        for ii in range(sze):
             str = str + board[ii][i]
-        if str == player * 3:
+        if str == player * sze:
             return True
     # проверяем диогональ лв-пн
     str = ''
-    for i in range(3):
+    for i in range(sze):
         str = str + board[i][i]
-    if str == player * 3:
+    if str == player * sze:
         return True
     # проверяем диогональ лн-пв
     str = ''
-    for i in range(3):
-        str = str + board[2-i][i]
-    if str == player * 3:
+    for i in range(sze):
+        str = str + board[(sze-1)-i][i]
+    if str == player * sze:
         return True
 
 # call for test
-#board = [[" " for i in range(3)] for j in range(3)]
+board = [[" " for i in range(3)] for j in range(3)]
 # аналог [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']] - красивое решение с циклами!
 
-board = (['O', 'X', 'O'],
-         ['X', 'O', 'X'],
-         ['O', 'O', 'X'])
-player = 'O'
+#board = (['O', 'X', 'O'],
+#         ['X', 'O', 'X'],
+#         ['X', 'O', 'X'])
+player = 'X'
 #print(board)
 #draw_board(board)
 #ask_and_make_move( 'X', board)
-#draw_board(board)
+draw_board(board)
 print(check_win(player, board))
 
 
