@@ -1,10 +1,10 @@
-def draw_board(board):
+def draw_board(board, sze):
     # запустить цикл, который проходит по всем  строкам доски
-    for i in range(3):
+    for i in range(sze):
         # поставить разделители значений в строке
         print(" | ".join(board[i]))
         # поставить разделители строк
-        print("---------")
+        print("---" * sze)
 
 def ask_move(player, board):
     # определяем размер доски
@@ -67,8 +67,12 @@ def check_win(player, board):
     if str == player * sze:
         return True
 
+#def tic_tac_toe():
+
+
 # call for test
-board = [[" " for i in range(3)] for j in range(3)]
+sze = 3
+board = [[" " for i in range(sze)] for j in range(sze)]
 # аналог [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']] - красивое решение с циклами!
 
 #board = (['O', 'X', 'O'],
@@ -78,7 +82,7 @@ player = 'X'
 #print(board)
 #draw_board(board)
 #ask_and_make_move( 'X', board)
-draw_board(board)
+draw_board(board, sze)
 print(check_win(player, board))
 
 
