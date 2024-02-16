@@ -10,7 +10,7 @@ def ask_move(player, board):
     # определяем размер доски
     sze = len(board)
     # дать игроку возможность сделать ход, то есто есть ввести координаты
-    x, y = input(f"{player}, Введите x и y координаты (пример 0 0): ").strip().split()
+    x, y = input(f"{player}, Введите x (0 - {sze -1}) и y (0 - {sze -1}) координаты (пример 0 0): ").strip().split()
     # преобразовать координаты в целые числа
     x, y = int(x), int(y)
     # задать условие, которое проверяет,
@@ -81,7 +81,7 @@ board = [[" " for i in range(sze)] for j in range(sze)]
 player = 'X'
 #print(board)
 #draw_board(board)
-#ask_and_make_move( 'X', board)
+ask_and_make_move( 'X', board)
 draw_board(board, sze)
 print(check_win(player, board))
 
