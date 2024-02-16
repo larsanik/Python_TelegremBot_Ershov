@@ -4,7 +4,7 @@ def draw_board(board, sze):
         # поставить разделители значений в строке
         print(" | ".join(board[i]))
         # поставить разделители строк
-        print("---" * sze)
+        print("---" * sze + "-" * (sze - 3))
 
 def ask_move(player, board):
     # определяем размер доски
@@ -71,7 +71,7 @@ def check_win(player, board):
 
 
 # call for test
-sze = 3
+sze = 9
 board = [[" " for i in range(sze)] for j in range(sze)]
 # аналог [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']] - красивое решение с циклами!
 
