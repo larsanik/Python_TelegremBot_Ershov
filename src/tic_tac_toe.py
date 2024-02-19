@@ -67,18 +67,24 @@ def check_win(player, board):
     if str == player * sze:
         return True
 
-#def tic_tac_toe():
-
+def tic_tac_toe():
+    # бесконечный цикл игры
+    while False:
+        sze = 3 # размер поля 3х3
+        board = [[" " for i in range(sze)] for j in range(sze)] # создание доски с заданным размером
+        player = 'X'
+        # бесконечный цикл раунда
+        while False:
+            # рисуем игровое поле
+            draw_board(board, sze)
 
 # call for test
-sze = 9
-board = [[" " for i in range(sze)] for j in range(sze)]
-# аналог [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']] - красивое решение с циклами!
+
 
 #board = (['O', 'X', 'O'],
 #         ['X', 'O', 'X'],
 #         ['X', 'O', 'X'])
-player = 'X'
+
 #print(board)
 #draw_board(board)
 ask_and_make_move( 'X', board)
