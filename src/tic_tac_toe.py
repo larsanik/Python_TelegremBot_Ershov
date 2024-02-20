@@ -69,26 +69,32 @@ def check_win(player, board):
 
 def tic_tac_toe():
     # бесконечный цикл игры
-    while False:
+    while True:
         sze = 3 # размер поля 3х3
         board = [[" " for i in range(sze)] for j in range(sze)] # создание доски с заданным размером
         player = 'X'
         # бесконечный цикл раунда
-        while False:
+        while True:
             # рисуем игровое поле
             draw_board(board, sze)
-
-# call for test
-
-
-#board = (['O', 'X', 'O'],
-#         ['X', 'O', 'X'],
-#         ['X', 'O', 'X'])
-
-#print(board)
-#draw_board(board)
-ask_and_make_move( 'X', board)
-draw_board(board, sze)
-print(check_win(player, board))
-
-
+            # запросить ход
+            ask_and_make_move(player, board)
+            # проверка выигрыша
+            if check_win(player, board):
+                print(f"{player} выиграл!")
+                break
+            # проверка состояния ничья
+            let_play = False
+            for row in board:
+                for cell in row:
+                    if cell == " ":
+                        let_play = True
+            # если произошла ничья, завершаем цикл
+            if not let_play:
+                break
+            # переход хода к другому игроку
+            player = "0" if player == "X" else "X"
+        # запрос продолжения игры
+        restart = input("Хотите сыграть еще раз? (y/n)")
+        if restart.lower() != "y":
+            break
