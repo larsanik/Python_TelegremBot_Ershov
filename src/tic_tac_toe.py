@@ -67,10 +67,9 @@ def check_win(player, board):
     if str == player * sze:
         return True
 
-def tic_tac_toe():
+def tic_tac_toe(sze):
     # бесконечный цикл игры
     while True:
-        sze = 3 # размер поля 3х3
         board = [[" " for i in range(sze)] for j in range(sze)] # создание доски с заданным размером
         player = 'X'
         # бесконечный цикл раунда
@@ -98,3 +97,6 @@ def tic_tac_toe():
         restart = input("Хотите сыграть еще раз? (y/n)")
         if restart.lower() != "y":
             break
+
+# запускаем игру для поля 3х3
+tic_tac_toe(3)
