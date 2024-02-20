@@ -70,7 +70,8 @@ def check_win(player, board):
 def tic_tac_toe(sze):
     # бесконечный цикл игры
     while True:
-        board = [[" " for i in range(sze)] for j in range(sze)] # создание доски с заданным размером
+        # создание доски с заданным размером
+        board = [[" " for i in range(sze)] for j in range(sze)]
         player = 'X'
         # бесконечный цикл раунда
         while True:
