@@ -15,25 +15,20 @@ def ask_move(player, board):
     x, y = int(x), int(y)
     # задать условие, которое проверяет,
     # находится ли координата в пределах поля и свободно ли место
-    if (0 <= x <= (sze-1)) and (0 <= y <= (sze-1)) and (board[x][y] == " "):
-        # если свободно, записать значение игрока (Х или 0) в ячейку
+    if (0 <= x <= (sze-1)) and (0 <= y <= (sze-1)) and (board[y][x] == " "):
+        # если свободно, вернуть координаты
         return(x, y)
     else:
-        print("Клетка занята. Попробуйте еще раз.")
+        print(f"Клетка {x} {y} занята. Попробуйте еще раз.")
         return ask_move(player, board)
 
 def make_move(player, board, x, y):
-    # прговерить что клетка свободна
-    if board[x][y] != " ":
-        print('Клетка занята!')
-        return False
-    # если клетка свободна, записать ход
-    board[x][y] = player
-    return True
+    # записать ход
+    board[y][x] = player
 
 def ask_and_make_move(player, board):
     x, y = ask_move(player, board)
-    # координаты x, y взять из функции ask_move(player, board)
+    # координаты x, y взять из функции ask_move(player, board) и записать ход
     make_move(player, board, x, y)
 
 def check_win(player, board):
@@ -91,6 +86,7 @@ def tic_tac_toe(sze):
                         let_play = True
             # если произошла ничья, завершаем цикл
             if not let_play:
+                print("Ничья!")
                 break
             # переход хода к другому игроку
             player = "0" if player == "X" else "X"
