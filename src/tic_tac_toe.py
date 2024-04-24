@@ -98,8 +98,9 @@ def tic_tac_toe(sze):
         player = 'X'
         # бесконечный цикл раунда
         while True:
+            #  делаем клон доски
+            clone_board = list(board)
             # рисуем игровое поле
-            clone_board = board[:]
             draw_board(clone_board, sze)
             # запросить ход
             ask_and_make_move(player, board)
