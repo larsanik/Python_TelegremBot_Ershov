@@ -1,9 +1,9 @@
 from colorama import Fore, Back, Style
+import copy
 
 
 def draw_board(clone_board, sze):
     # делаем клон доски
-    # clone_board = board[:] todo
     # запустить цикл, который проходит по всем  строкам доски
     for i in range(sze):
         # разукращиваем символы в строке
@@ -11,14 +11,9 @@ def draw_board(clone_board, sze):
             if clone_board[i][ii] == ' ':
                 clone_board[i][ii] = Back.MAGENTA + clone_board[i][ii] + Style.RESET_ALL
             if clone_board[i][ii] == '0':
-                clone_board[i][ii] = Fore.BLUE + clone_board[i][ii] + Style.RESET_ALL
+                clone_board[i][ii] = Fore.LIGHTGREEN_EX + Back.BLACK + clone_board[i][ii] + Style.RESET_ALL
             if clone_board[i][ii] == 'X':
-                clone_board[i][ii] = Fore.RED + clone_board[i][ii] + Style.RESET_ALL
-
-        # line = Back.MAGENTA + " | ".join(board[i]) + Style.RESET_ALL + '\n'
-        print(id(clone_board))
-        #print(id(board))
-
+                clone_board[i][ii] = Fore.BLACK + Back.LIGHTGREEN_EX + clone_board[i][ii] + Style.RESET_ALL
 
         # поставить разделители значений в строке
         print(" | ".join(clone_board[i]))
@@ -41,8 +36,6 @@ def ask_move(player, board):
         # если свободно, вернуть координаты
         return (x, y)
     else:
-        print(board[y][x])  # todo убрать контрольный вывод
-        print(id(board))  # todo убрать контрольный вывод
         print(f"Клетка {x} {y} занята. Попробуйте еще раз.")
         return ask_move(player, board)
 
@@ -96,18 +89,23 @@ def tic_tac_toe(sze):
         # создание доски с заданным размером
         board = [[" " for i in range(sze)] for j in range(sze)]
         player = 'X'
+
         # бесконечный цикл раунда
         while True:
-            #  делаем клон доски
-            clone_board = list(board)
+            #  делаем клон доски для разукращивания в цвета
+            clone_board = copy.deepcopy(board)
+
             # рисуем игровое поле
             draw_board(clone_board, sze)
+
             # запросить ход
             ask_and_make_move(player, board)
+
             # проверка выигрыша
             if check_win(player, board):
                 print(f"{player} выиграл!")
                 break
+
             # проверка состояния ничья
             let_play = False
             for row in board:
