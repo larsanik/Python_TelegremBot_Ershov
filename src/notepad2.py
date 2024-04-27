@@ -29,9 +29,11 @@ def read_note():
     if os.path.isfile(note_name + ".txt"):
         with open(f"{note_name}.txt", "r", encoding="utf-8") as file:
             print(file.read())
+        return note_name
     else:
         print("Заметка не найдена.")
-    return note_name
+        return ''
+
 
 
 def edit_note():
@@ -44,8 +46,6 @@ def edit_note():
         with open(f"{note_name}.txt", "w", encoding="utf-8") as file:
             file.write(note_text)
         print(f"Заметка {note_name} обновлена.")
-    else:
-        return
 
 
 def delete_note():
@@ -64,7 +64,7 @@ def main():
     """содержит основной цикл программы. Функция отображает меню с вариантами действий с заметками, которые пользователь
      может выбрать. Затем функция выполняет действие, которое выбрал пользователь."""
 
-while True:
+    while True:
         # запрашиваем дейстие с заметкой у пользователя
         sel = input("Что вы хотите сделать с заметкой?\n"
                     "Создать       - 1\n"
@@ -83,8 +83,11 @@ while True:
             delete_note()
         else:
             print('Не верно введен вариант действия с заметклй.')
+
+        # выход из программы
         if input('Продолжить работу с заметками (y/n)?\n:> ').lower() == 'n':
             break
+
 
 if __name__ == "__main__":
     main()
