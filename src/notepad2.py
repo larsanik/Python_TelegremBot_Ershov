@@ -4,6 +4,7 @@
 # заметками и основную функцию, которая управляет работой приложения.
 
 import os
+import time
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -90,6 +91,7 @@ def main():
             logger.info('Не верно введен вариант действия с заметклй.')
 
         # выход из программы
+        time.sleep(0.1)
         if input('Продолжить работу с заметками (y/n)?\n:> ').lower() == 'n':
             break
 
