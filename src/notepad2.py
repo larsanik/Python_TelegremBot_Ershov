@@ -4,13 +4,17 @@
 # заметками и основную функцию, которая управляет работой приложения.
 
 import os
-
+import logging
+logging.basicConfig(level=logging.INFO)
 
 def build_note(note_text, note_name):
     """получает название и текст заметки, а затем создает текстовый файл с этим названием и текстом"""
+    if not note_text.strip():
+        logger.error("Текст заметки не может быть пустым.")
+        return
     with open(f"{note_name}.txt", "w", encoding="utf-8") as file:
         file.write(note_text)
-    print(f"Заметка {note_name} создана.")
+    logger.info(f"Заметка {note_name} создана.")
 
 
 def create_note():
@@ -31,7 +35,7 @@ def read_note():
             print(file.read())
         return note_name
     else:
-        print("Заметка не найдена.")
+        logger.error("Заметка не найдена.")
         return ''
 
 
@@ -45,7 +49,7 @@ def edit_note():
         note_text = input("Введите новый текст заметки: ")
         with open(f"{note_name}.txt", "w", encoding="utf-8") as file:
             file.write(note_text)
-        print(f"Заметка {note_name} обновлена.")
+        logger.info(f"Заметка {note_name} обновлена.")
 
 
 def delete_note():
@@ -55,9 +59,9 @@ def delete_note():
     note_name = input("Введите название заметки для удаления: ")
     if os.path.isfile(note_name + '.txt'):
         os.remove(note_name + '.txt')
-        print(f"Заметка {note_name} удалена.")
+        logger.info(f"Заметка {note_name} удалена.")
     else:
-        print("Заметка не найдена.")
+        logger.error("Заметка не найдена.")
 
 
 def main():
@@ -82,7 +86,7 @@ def main():
         elif sel == "4":
             delete_note()
         else:
-            print('Не верно введен вариант действия с заметклй.')
+            logger.info('Не верно введен вариант действия с заметклй.')
 
         # выход из программы
         if input('Продолжить работу с заметками (y/n)?\n:> ').lower() == 'n':
@@ -90,4 +94,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger(__name__)
     main()
