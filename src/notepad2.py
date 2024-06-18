@@ -6,6 +6,7 @@
 import os
 import logging
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def build_note(note_text, note_name):
     """получает название и текст заметки, а затем создает текстовый файл с этим названием и текстом"""
@@ -94,5 +95,4 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = logging.getLogger(__name__)
     main()
