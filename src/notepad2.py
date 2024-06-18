@@ -8,7 +8,6 @@
 
 import os
 import time
-from glob import glob
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
