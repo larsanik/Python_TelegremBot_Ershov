@@ -78,9 +78,27 @@ def display_notes():
     for i in notes:
         with open(i, "r", encoding="utf-8") as file:
             dic_notes[i] = len(file.read())
-    # сортировка заметок по возрастанию длинны
-    sorted_notes = sorted(dic_notes.items(), key=lambda item: item[1], reverse=False)
-    # вывод заметок в порядке возрастания длинны
+    # сортировка заметок по уменьшению длинны
+    sorted_notes = sorted(dic_notes.items(), key=lambda item: item[1], reverse=True)
+    # вывод заметок в порядке уменьшения длинны
+    for i in sorted_notes:
+        with open(i[0], "r", encoding="utf-8") as file:
+            print(f'Заметка "{i[0]}".')
+            print(file.read(), '\n')
+
+
+def display_sorted_notes():
+    """выводит все заметки пользователя в порядке уменьшения длинны"""
+    # формирование списка файлов с замктками
+    notes = [note for note in os.listdir() if note.endswith(".txt")]
+    # создание словаря с именем файла и длинной заметки
+    dic_notes = {}
+    for i in notes:
+        with open(i, "r", encoding="utf-8") as file:
+            dic_notes[i] = len(file.read())
+    # сортировка заметок по уменьшению длинны
+    sorted_notes = sorted(dic_notes.items(), key=lambda item: item[1], reverse=True)
+    # вывод заметок в порядке уменьшения длинны
     for i in sorted_notes:
         with open(i[0], "r", encoding="utf-8") as file:
             print(f'Заметка "{i[0]}".')
@@ -98,6 +116,7 @@ def main():
                     "Читать        - 2\n"
                     "Редактировать - 3\n"
                     "Удалить       - 4\n"
+                    "Вывести все заметки в порядке уменьшения длинны - 5\n"
                     ":> ")
         # выполнение действий с заметками
         if sel == "1":
@@ -108,6 +127,8 @@ def main():
             edit_note()
         elif sel == "4":
             delete_note()
+        elif sel == "5":
+            display_sorted_notes()
         else:
             logger.info('Не верно введен вариант действия с заметклй.')
 
@@ -118,6 +139,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # main() todo только для задания 4
-    display_notes()  # todo только для задания 4
-
+    main()
