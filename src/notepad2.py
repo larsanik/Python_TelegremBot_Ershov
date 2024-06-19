@@ -8,9 +8,15 @@
 
 import os
 import time
+import telegram
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
+import secrets
+# логирование
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+# инициализация объекта Updater с помощью токена API:
+updater = Updater(token=secrets.API_TOKEN)
 
 
 def build_note(note_text, note_name):
@@ -26,11 +32,11 @@ def build_note(note_text, note_name):
         logger.error(f'Произошла ошибка: {err}')
 
 
-def create_note():
+def create_note(note_name, note_text):
     """запрашивает у пользователя название и текст заметки, а затем вызывает функцию build_note(note_text, note_name)"""
     try:
-        note_name = input("Введите название заметки для создания: ")
-        note_text = input("Введите текст заметки: ")
+        #note_name = input("Введите название заметки для создания: ")
+        #note_text = input("Введите текст заметки: ")
         build_note(note_text, note_name)
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
@@ -126,40 +132,60 @@ def display_sorted_notes():
         logger.error(f'Произошла ошибка: {err}')
 
 
-def main():
-    """содержит основной цикл программы. Функция отображает меню с вариантами действий с заметками, которые пользователь
-     может выбрать. Затем функция выполняет действие, которое выбрал пользователь."""
+# Создать обработчик для создания заметок create_handler
+def create_note_handler(update, context):
     try:
-        while True:
-            # запрашиваем дейстие с заметкой у пользователя
-            sel = input("Что вы хотите сделать с заметкой?\n"
-                        "Создать       - 1\n"
-                        "Читать        - 2\n"
-                        "Редактировать - 3\n"
-                        "Удалить       - 4\n"
-                        "Вывести все заметки в порядке уменьшения длинны - 5\n"
-                        ":> ")
-            # выполнение действий с заметками
-            if sel == "1":
-                create_note()
-            elif sel == "2":
-                read_note()
-            elif sel == "3":
-                edit_note()
-            elif sel == "4":
-                delete_note()
-            elif sel == "5":
-                display_sorted_notes()
-            else:
-                logger.info('Не верно введен вариант действия с заметкой.')
-
-            # выход из программы
-            time.sleep(0.1)
-            if input('Продолжить работу с заметками (y/n)?\n:> ').lower() == 'n':
-                break
+        logger.info('Я тут')
+        # Получить текст заметки из сообщения пользователя
+        note_text = update.message.text
+        # Получить название заметки из сообщения пользователя
+        note_name = update.message.chat_id
+        # Создать заметку с помощью функции create_note(note_text, note_name)
+        create_note(note_text, note_name)
+        # Отправить пользователю подтверждение, что заметка создана
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Заметка {note_name} создана.")
     except Exception as err:
-        logger.error(f'Произошла ошибка: {err}')
+        # Отправить пользователю сообщение об ошибке
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
+# Добавить функцию create_note_handler как CommandHandler для команды /create
+updater.dispatcher.add_handler(CommandHandler('create', create_note_handler))
+updater.start_polling()
 
-if __name__ == "__main__":
-    main()
+# def main():
+#     """содержит основной цикл программы. Функция отображает меню с вариантами действий с заметками, которые пользователь
+#      может выбрать. Затем функция выполняет действие, которое выбрал пользователь."""
+#     try:
+#         while True:
+#             # запрашиваем дейстие с заметкой у пользователя
+#             sel = input("Что вы хотите сделать с заметкой?\n"
+#                         "Создать       - 1\n"
+#                         "Читать        - 2\n"
+#                         "Редактировать - 3\n"
+#                         "Удалить       - 4\n"
+#                         "Вывести все заметки в порядке уменьшения длинны - 5\n"
+#                         ":> ")
+#             # выполнение действий с заметками
+#             if sel == "1":
+#                 create_note()
+#             elif sel == "2":
+#                 read_note()
+#             elif sel == "3":
+#                 edit_note()
+#             elif sel == "4":
+#                 delete_note()
+#             elif sel == "5":
+#                 display_sorted_notes()
+#             else:
+#                 logger.info('Не верно введен вариант действия с заметкой.')
+#
+#             # выход из программы
+#             time.sleep(0.1)
+#             if input('Продолжить работу с заметками (y/n)?\n:> ').lower() == 'n':
+#                 break
+#     except Exception as err:
+#         logger.error(f'Произошла ошибка: {err}')
+#
+#
+# if __name__ == "__main__":
+#     main()
