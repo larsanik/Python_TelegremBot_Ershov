@@ -151,7 +151,7 @@ def main():
             elif sel == "5":
                 display_sorted_notes()
             else:
-                logger.info('Не верно введен вариант действия с заметклй.')
+                logger.info('Не верно введен вариант действия с заметкой.')
 
             # выход из программы
             time.sleep(0.1)
