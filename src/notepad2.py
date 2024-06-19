@@ -44,11 +44,13 @@ def create_note(note_name, note_text):
 def create_note_handler(update, context):
     try:
         # Получить название заметки из сообщения пользователя
-        context.bot.send_message(chat_id=update.message.chat_id, text="Введите имя заметки:")
-        note_name = update.message.text
+        note_name = context.bot.send_message(chat_id=update.message.chat_id,text="Введите имя заметки:")
+        context.bot.register_next_step_handler(note_name, )
+        #note_name = update.message.chat_id
         logger.info(note_name)
         # Получить текст заметки из сообщения пользователя
-        context.bot.send_message(chat_id=update.message.chat_id, text="Введите текст заметки:")
+        # note_text = update.send_message(text="Введите текст заметки:")
+        # update.register_next_step_handler(note_text)
         note_text = update.message.text
         logger.error(note_text)
         # Создать заметку с помощью функции create_note(note_text, note_name)
@@ -60,8 +62,10 @@ def create_note_handler(update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
 
+# эхо
 def text(update, context):
-    ...
+    message = update.message
+    message.reply_text('Echo: ' + message.text)
 
 
 def read_note():
