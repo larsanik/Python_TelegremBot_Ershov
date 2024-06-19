@@ -15,8 +15,6 @@ import secrets
 # логирование
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-# инициализация объекта Updater с помощью токена API:
-updater = Updater(token=secrets.API_TOKEN)
 
 
 def build_note(note_text, note_name):
@@ -35,11 +33,35 @@ def build_note(note_text, note_name):
 def create_note(note_name, note_text):
     """запрашивает у пользователя название и текст заметки, а затем вызывает функцию build_note(note_text, note_name)"""
     try:
-        #note_name = input("Введите название заметки для создания: ")
-        #note_text = input("Введите текст заметки: ")
+        # note_name = input("Введите название заметки для создания: ")
+        # note_text = input("Введите текст заметки: ")
         build_note(note_text, note_name)
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
+
+
+# обработчик для создания заметок create_handler
+def create_note_handler(update, context):
+    try:
+        # Получить название заметки из сообщения пользователя
+        context.bot.send_message(chat_id=update.message.chat_id, text="Введите имя заметки:")
+        note_name = update.message.text
+        logger.info(note_name)
+        # Получить текст заметки из сообщения пользователя
+        context.bot.send_message(chat_id=update.message.chat_id, text="Введите текст заметки:")
+        note_text = update.message.text
+        logger.error(note_text)
+        # Создать заметку с помощью функции create_note(note_text, note_name)
+        create_note(note_name, note_text)
+        # Отправить пользователю подтверждение, что заметка создана
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Заметка {note_name} создана.")
+    except Exception as err:
+        # Отправить пользователю сообщение об ошибке
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
+
+
+def text(update, context):
+    ...
 
 
 def read_note():
@@ -132,24 +154,17 @@ def display_sorted_notes():
         logger.error(f'Произошла ошибка: {err}')
 
 
-# Создать обработчик для создания заметок create_handler
-def create_note_handler(update, context):
-    try:
-        logger.info('Я тут')
-        # Получить текст заметки из сообщения пользователя
-        note_text = update.message.text
-        # Получить название заметки из сообщения пользователя
-        note_name = update.message.chat_id
-        # Создать заметку с помощью функции create_note(note_text, note_name)
-        create_note(note_text, note_name)
-        # Отправить пользователю подтверждение, что заметка создана
-        context.bot.send_message(chat_id=update.message.chat_id, text=f"Заметка {note_name} создана.")
-    except Exception as err:
-        # Отправить пользователю сообщение об ошибке
-        context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
+# проверка связи
+def hi(update, context):
+    context.bot.send_message(chat_id=update.message.chat_id, text="Я на связи =о).")
 
+
+# инициализация объекта Updater с помощью токена API:
+updater = Updater(token=secrets.API_TOKEN, use_context=True)
 # Добавить функцию create_note_handler как CommandHandler для команды /create
 updater.dispatcher.add_handler(CommandHandler('create', create_note_handler))
+updater.dispatcher.add_handler(CommandHandler("hi", hi))
+updater.dispatcher.add_handler(MessageHandler(Filters.text, text))
 updater.start_polling()
 
 # def main():
