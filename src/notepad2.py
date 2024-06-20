@@ -7,8 +7,8 @@
 # Задание 4. Добавьте вывод всех заметок пользователя
 
 import os
-import time
-import telegram
+# import time
+# import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 import secrets
