@@ -31,15 +31,17 @@ note_name, note_text = '', ''
 
 
 # создаем заметку по полученным данным
-def build_note(note_text, note_name):
+def build_note(lc_note_text, lc_note_name) -> None:
     """получает название и текст заметки, а затем создает текстовый файл с этим названием и текстом"""
     try:
-        if not note_text.strip():
+        if lc_note_text.strip() == '':
             logger.error("Текст заметки не может быть пустым.")
             return "Текст заметки не может быть пустым."
-        with open(f"{note_name}.txt", "w", encoding="utf-8") as file:
-            file.write(note_text)
-        logger.info(f"Заметка {note_name} создана.")
+        else:
+            return ''
+        with open(f"{lc_note_name}.txt", "w", encoding="utf-8") as file:
+            file.write(lc_note_text)
+        logger.info(f"Заметка {lc_note_name} создана.")
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
 
@@ -47,34 +49,18 @@ def build_note(note_text, note_name):
 # запуск ввода данных для создания заметок
 def create_note_handler(update: Update, context: CallbackContext) -> int:
     """Запрос имени заметки."""
-    try:
-        update.message.reply_text('Введите имя заметки: ')#,
-        #                           reply_markup=ReplyKeyboardMarkup([''],
-        #                                                            one_time_keyboard=True,
-        #                                                            input_field_placeholder='<Имя заметки>')
-        #                           )
-        update.message.reply_text('Клавиатура скрыта', reply_markup=ReplyKeyboardRemove())
-        return NAME
-    except Exception as err:
-        logger.error(f'Произошла ошибка: {err}')
+    update.message.reply_text('Введите имя заметки: ')
+    return NAME
 
 
 def get_name_note(update: Update, context: CallbackContext) -> int:
     """Запрос текста заметки."""
-    try:
-        user = update.message.from_user
-        logger.info(f"Пользователь:  {user.first_name}. Имя заметки: {update.message.text}.")
-        global note_name
-        note_name = update.message.text
-        update.message.reply_text('Введите текст заметки: ')#,
-        #                           reply_markup=ReplyKeyboardMarkup([''],
-        #                                                            one_time_keyboard=True,
-        #                                                            input_field_placeholder='<Текст заметки>')
-        #                           )
-        update.message.reply_text('Клавиатура скрыта', reply_markup=ReplyKeyboardRemove())
-        return TEXT
-    except Exception as err:
-        logger.error(f'Произошла ошибка: {err}')
+    user = update.message.from_user
+    logger.info(f"Пользователь:  {user.first_name}. Имя заметки: {update.message.text}.")
+    global note_name
+    note_name = update.message.text
+    update.message.reply_text('Введите текст заметки: ')
+    return TEXT
 
 
 def get_text_note(update: Update, context: CallbackContext) -> int:
@@ -83,11 +69,12 @@ def get_text_note(update: Update, context: CallbackContext) -> int:
         user = update.message.from_user
         logger.info(f"Пользователь:  {user.first_name}. Текст заметки: {update.message.text}")
         global note_text
-        note_text = update.message.text
-        build_note(note_text, note_name)  # создаем заметку
-        if build_note(note_text, note_name):  # сообщение заметка не может быть пустая
+        if build_note(note_text, note_name) != '':  # сообщение заметка не может быть пустая
+            # todo никогда не сработает, telegram не дает отправить пустое сообщение
             update.message.reply_text(build_note(note_text, note_name))
         else:
+            note_text = update.message.text
+            build_note(note_text)  # создаем заметку
             update.message.reply_text(f'Заметка {note_name} создана.')
             return ConversationHandler.END
     except Exception as err:
@@ -114,7 +101,7 @@ def main() -> None:
         # Get the dispatcher to register handlers
         dispatcher = updater.dispatcher
 
-        # Add conversation handler with the states NAME, ТEXT, LOCATION and BIO
+        # Add conversation handler with the states NAME, ТEXT
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler('create', create_note_handler)],
             states={
@@ -139,3 +126,5 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
+
