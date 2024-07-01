@@ -1,5 +1,4 @@
 import logging
-
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (
     Updater,
@@ -11,7 +10,7 @@ from telegram.ext import (
 )
 import secrets
 
-# Enable logging
+# Включение логирования
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
@@ -26,7 +25,6 @@ note_name, note_text = '', ''
 
 
 # todo Добавить во все функции обработчики ошибок
-# todo Добавить надписи в поле ввода, как в примере с гендерами)
 
 
 # создаем заметку по полученным данным
@@ -55,6 +53,7 @@ def create_note_handler(update: Update, context: CallbackContext) -> int:
         logger.error(f'Произошла ошибка: {err}')
 
 
+# получение имени заметки
 def get_name_note(update: Update, context: CallbackContext) -> int:
     """Запрос текста заметки."""
     try:
@@ -68,6 +67,7 @@ def get_name_note(update: Update, context: CallbackContext) -> int:
         logger.error(f'Произошла ошибка: {err}')
 
 
+# получение текста заметки + создание заметки
 def get_text_note(update: Update, context: CallbackContext) -> int:
     """Выход из опроса."""
     try:
@@ -92,33 +92,57 @@ def cancel(update: Update, context: CallbackContext) -> int:
         logger.error(f'Произошла ошибка: {err}')
 
 
-def main() -> None:
-    """Run the bot."""
+# обработчик для команды /start
+def create_start_handler(update, context):
     try:
-        # Create the Updater and pass it your bot's token.
+        msg_start = """ Бот для работы с заметками.
+        Команды:
+        /start - запуск бота
+        /create - создание заметки
+        /cancel - выход из диалога
+        /read - чтение заметки
+        /edit - замена текста заметки
+        /delete - удаление заметки
+        /display - вывод списка заметок
+        /display_sorted - вывод списка заметок в порядке уменьшения длинны
+        /keyb_on - включение виртуальной клавиатуры
+        /keyb_off - выключение виртуальной клавиатуры
+        """
+        context.bot.send_message(chat_id=update.message.chat_id, text=msg_start)
+    except Exception as err:
+        # Отправить пользователю сообщение об ошибке
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
+
+
+def main() -> None:
+    """Запуск бота."""
+    try:
+        # создание обработчика с токеном
         updater = Updater(token=secrets.API_TOKEN)
 
-        # Get the dispatcher to register handlers
+        # получение диспетчера
         dispatcher = updater.dispatcher
 
-        # Add conversation handler with the states NAME, ТEXT
+        # обработка команды /start
+        updater.dispatcher.add_handler(CommandHandler('start', create_start_handler))
+
+        # диалог для создания заметки, шаги NAME, ТEXT
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler('create', create_note_handler)],
             states={
                 NAME: [MessageHandler(Filters.text & ~Filters.command, get_name_note)],
                 TEXT: [MessageHandler(Filters.text & ~Filters.command, get_text_note)],
             },
-            fallbacks=[CommandHandler('cancel', cancel)],
+            fallbacks=[CommandHandler('cancel', cancel)],  # принудительный выход из диалога по команде /cancel
         )
 
         dispatcher.add_handler(conv_handler)
 
-        # Start the Bot
+        # запуск бота
         updater.start_polling()
 
-        # Run the bot until you press Ctrl-C or the process receives SIGINT,
-        # SIGTERM or SIGABRT. This should be used most of the time, since
-        # start_polling() is non-blocking and will stop the bot gracefully.
+
+        # для корректной остановки бота по запросу из ide
         updater.idle()
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
