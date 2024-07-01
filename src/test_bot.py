@@ -40,8 +40,8 @@ def build_note(lc_note_text, lc_note_name) -> None:
         else:
             with open(f"{lc_note_name}.txt", "w", encoding="utf-8") as file:
                 file.write(lc_note_text)
+            logger.info(f"Заметка {lc_note_name} создана.")
             return f"Заметка {lc_note_name} создана."
-        logger.info(f"Заметка {lc_note_name} создана.")
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
 
@@ -49,18 +49,24 @@ def build_note(lc_note_text, lc_note_name) -> None:
 # запуск ввода данных для создания заметок
 def create_note_handler(update: Update, context: CallbackContext) -> int:
     """Запрос имени заметки."""
-    update.message.reply_text('Введите имя заметки: ')
-    return NAME
+    try:
+        update.message.reply_text('Введите имя заметки: ')
+        return NAME
+    except Exception as err:
+        logger.error(f'Произошла ошибка: {err}')
 
 
 def get_name_note(update: Update, context: CallbackContext) -> int:
     """Запрос текста заметки."""
-    user = update.message.from_user
-    logger.info(f"Пользователь:  {user.first_name}. Имя заметки: {update.message.text}.")
-    global note_name
-    note_name = update.message.text
-    update.message.reply_text('Введите текст заметки: ')
-    return TEXT
+    try:
+        user = update.message.from_user
+        logger.info(f"Пользователь:  {user.first_name}. Имя заметки: {update.message.text}.")
+        global note_name
+        note_name = update.message.text
+        update.message.reply_text('Введите текст заметки: ')
+        return TEXT
+    except Exception as err:
+        logger.error(f'Произошла ошибка: {err}')
 
 
 def get_text_note(update: Update, context: CallbackContext) -> int:
@@ -70,8 +76,7 @@ def get_text_note(update: Update, context: CallbackContext) -> int:
         logger.info(f"Пользователь:  {user.first_name}. Текст заметки: {update.message.text}")
         global note_text
         note_text = update.message.text
-        # build_note(note_text, note_name)  # создаем заметку
-        update.message.reply_text(build_note(note_text, note_name))
+        update.message.reply_text(build_note(note_text, note_name))  # создаем заметку и выводим сообщение о результате
         return ConversationHandler.END
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
@@ -81,8 +86,8 @@ def cancel(update: Update, context: CallbackContext) -> int:
     """Выход из диалога по команде /cancel."""
     try:
         user = update.message.from_user
-        logger.info(f"Пользователь {user.first_name} вышел из диалога .")
-        update.message.reply_text('Запрос данных прерван пользователем')
+        logger.info(f"Пользователь {user.first_name} вышел из диалога.")
+        update.message.reply_text('Запрос данных прерван пользователем.')
         return ConversationHandler.END
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
@@ -101,8 +106,8 @@ def main() -> None:
         conv_handler = ConversationHandler(
             entry_points=[CommandHandler('create', create_note_handler)],
             states={
-                NAME: [MessageHandler(Filters.text, get_name_note)],
-                TEXT: [MessageHandler(Filters.text, get_text_note)],
+                NAME: [MessageHandler(Filters.text & ~Filters.command, get_name_note)],
+                TEXT: [MessageHandler(Filters.text & ~Filters.command, get_text_note)],
             },
             fallbacks=[CommandHandler('cancel', cancel)],
         )
