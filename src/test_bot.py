@@ -34,13 +34,13 @@ note_name, note_text = '', ''
 def build_note(lc_note_text, lc_note_name) -> None:
     """получает название и текст заметки, а затем создает текстовый файл с этим названием и текстом"""
     try:
-        if lc_note_text.strip() == '':
+        if lc_note_text == '':
             logger.error("Текст заметки не может быть пустым.")
             return "Текст заметки не может быть пустым."
         else:
-            return ''
-        with open(f"{lc_note_name}.txt", "w", encoding="utf-8") as file:
-            file.write(lc_note_text)
+            with open(f"{lc_note_name}.txt", "w", encoding="utf-8") as file:
+                file.write(lc_note_text)
+            return f"Заметка {lc_note_name} создана."
         logger.info(f"Заметка {lc_note_name} создана.")
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
@@ -69,14 +69,10 @@ def get_text_note(update: Update, context: CallbackContext) -> int:
         user = update.message.from_user
         logger.info(f"Пользователь:  {user.first_name}. Текст заметки: {update.message.text}")
         global note_text
-        if build_note(note_text, note_name) != '':  # сообщение заметка не может быть пустая
-            # todo никогда не сработает, telegram не дает отправить пустое сообщение
-            update.message.reply_text(build_note(note_text, note_name))
-        else:
-            note_text = update.message.text
-            build_note(note_text)  # создаем заметку
-            update.message.reply_text(f'Заметка {note_name} создана.')
-            return ConversationHandler.END
+        note_text = update.message.text
+        # build_note(note_text, note_name)  # создаем заметку
+        update.message.reply_text(build_note(note_text, note_name))
+        return ConversationHandler.END
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
 
