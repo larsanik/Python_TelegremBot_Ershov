@@ -114,6 +114,28 @@ def create_start_handler(update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
 
+
+# обработчик для команды /read
+def create_read_handler(update, context):
+    try:
+        msg_start = """ Бот для работы с заметками.
+        Команды:
+        /start - запуск бота
+        /create - создание заметки
+        /cancel - выход из диалога
+        /read - чтение заметки
+        /edit - замена текста заметки
+        /delete - удаление заметки
+        /display - вывод списка заметок
+        /display_sorted - вывод списка заметок в порядке уменьшения длинны
+        /keyb_on - включение виртуальной клавиатуры
+        /keyb_off - выключение виртуальной клавиатуры
+        """
+        context.bot.send_message(chat_id=update.message.chat_id, text=msg_start)
+    except Exception as err:
+        # Отправить пользователю сообщение об ошибке
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
+
 def main() -> None:
     """Запуск бота."""
     try:
@@ -135,6 +157,9 @@ def main() -> None:
             },
             fallbacks=[CommandHandler('cancel', cancel)],  # принудительный выход из диалога по команде /cancel
         )
+
+        # обработка команды /read
+        updater.dispatcher.add_handler(CommandHandler('read', create_read_handler))
 
         dispatcher.add_handler(conv_handler)
 
