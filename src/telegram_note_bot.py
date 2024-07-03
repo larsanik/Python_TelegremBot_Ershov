@@ -1,4 +1,5 @@
 import logging
+import os
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (
     Updater,
@@ -18,7 +19,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # шаги ввода данных
-NAME, TEXT = range(2)
+NAME, TEXT, READ = range(3)
 
 # глобалки для передачи значений
 note_name, note_text = '', ''
@@ -28,7 +29,7 @@ note_name, note_text = '', ''
 
 
 # создаем заметку по полученным данным
-def build_note(lc_note_text, lc_note_name) -> None:
+def build_note(lc_note_text, lc_note_name) -> str:
     """получает название и текст заметки, а затем создает текстовый файл с этим названием и текстом"""
     try:
         if lc_note_text == '':
@@ -53,12 +54,12 @@ def create_note_handler(update: Update, context: CallbackContext) -> int:
         logger.error(f'Произошла ошибка: {err}')
 
 
-# получение имени заметки
-def get_name_note(update: Update, context: CallbackContext) -> int:
+# получение имени заметки для создания
+def get_name_note_create(update: Update, context: CallbackContext) -> int:
     """Запрос текста заметки."""
     try:
         user = update.message.from_user
-        logger.info(f"Пользователь:  {user.first_name}. Имя заметки: {update.message.text}.")
+        logger.info(f"Пользователь:  {user.first_name}. Имя создаваемой заметки: {update.message.text}.")
         global note_name
         note_name = update.message.text
         update.message.reply_text('Введите текст заметки: ')
@@ -72,7 +73,7 @@ def get_text_note(update: Update, context: CallbackContext) -> int:
     """Выход из опроса."""
     try:
         user = update.message.from_user
-        logger.info(f"Пользователь:  {user.first_name}. Текст заметки: {update.message.text}")
+        logger.info(f"Пользователь:  {user.first_name}. Текст создаваемой заметки: {update.message.text}")
         global note_text
         note_text = update.message.text
         update.message.reply_text(build_note(note_text, note_name))  # создаем заметку и выводим сообщение о результате
@@ -114,27 +115,45 @@ def create_start_handler(update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
 
+def read_note(lc_note_name) -> str:
+    """Читает заметку. Если файл с таким названием существует, функция считывает содержимое
+    файла и выводит его на экран. Если файла не существует, функция выводит сообщение, что заметка не найдена.
+    Для проверки наличия файла используйте функцию os.path.isfile из модуля os.
+    Не забудьте импортировать этот модуль."""
+    try:
+        if os.path.isfile(lc_note_name + ".txt"):
+            with open(f"{lc_note_name}.txt", "r", encoding="utf-8") as file:
+                return file.read()
+        else:
+            logger.error(f"Заметка {lc_note_name} не найдена.")
+            return f"Заметка {note_name} не найдена."
+    except Exception as err:
+        logger.error(f'Произошла ошибка: {err}')
+
+
+# получение имени заметки для чтения и вывод в чат если есть, если нет сообщение нет
+def get_name_note_read(update, context) -> int:
+    """Запрос имени заметки для чтения."""
+    try:
+        user = update.message.from_user
+        logger.info(f"Пользователь:  {user.first_name}. Имя заметки для чтения : {update.message.text}.")
+        global note_name
+        note_name = update.message.text
+        update.message.reply_text(read_note(note_name))  # создаем заметку и выводим сообщение о результате
+        return ConversationHandler.END
+    except Exception as err:
+        logger.error(f'Произошла ошибка: {err}')
+
 
 # обработчик для команды /read
 def create_read_handler(update, context):
     try:
-        msg_start = """ Бот для работы с заметками.
-        Команды:
-        /start - запуск бота
-        /create - создание заметки
-        /cancel - выход из диалога
-        /read - чтение заметки
-        /edit - замена текста заметки
-        /delete - удаление заметки
-        /display - вывод списка заметок
-        /display_sorted - вывод списка заметок в порядке уменьшения длинны
-        /keyb_on - включение виртуальной клавиатуры
-        /keyb_off - выключение виртуальной клавиатуры
-        """
-        context.bot.send_message(chat_id=update.message.chat_id, text=msg_start)
+        update.message.reply_text('Введите имя заметки для чтения: ')
+        return NAME
     except Exception as err:
         # Отправить пользователю сообщение об ошибке
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
+
 
 def main() -> None:
     """Запуск бота."""
@@ -149,26 +168,35 @@ def main() -> None:
         updater.dispatcher.add_handler(CommandHandler('start', create_start_handler))
 
         # диалог для создания заметки, шаги NAME, ТEXT
-        conv_handler = ConversationHandler(
+        conv_handler_create = ConversationHandler(
             entry_points=[CommandHandler('create', create_note_handler)],
             states={
-                NAME: [MessageHandler(Filters.text & ~Filters.command, get_name_note)],
+                NAME: [MessageHandler(Filters.text & ~Filters.command, get_name_note_create)],
                 TEXT: [MessageHandler(Filters.text & ~Filters.command, get_text_note)],
             },
             fallbacks=[CommandHandler('cancel', cancel)],  # принудительный выход из диалога по команде /cancel
         )
+        dispatcher.add_handler(conv_handler_create)
+
+        # диалог для чтения заметки, шаг NAME
+        conv_handler_read = ConversationHandler(
+            entry_points=[CommandHandler('read', create_read_handler)],
+            states={
+                NAME: [MessageHandler(Filters.text & ~Filters.command, get_name_note_read)],
+            },
+            fallbacks=[CommandHandler('cancel', cancel)],  # принудительный выход из диалога по команде /cancel
+        )
+        dispatcher.add_handler(conv_handler_read)
 
         # обработка команды /read
         updater.dispatcher.add_handler(CommandHandler('read', create_read_handler))
 
-        dispatcher.add_handler(conv_handler)
-
         # запуск бота
         updater.start_polling()
 
-
         # для корректной остановки бота по запросу из ide
         updater.idle()
+
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
 
