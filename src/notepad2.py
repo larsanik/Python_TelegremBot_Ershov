@@ -20,12 +20,15 @@ def build_note(note_text, note_name):
         return
     with open(f"{note_name}.txt", "w", encoding="utf-8") as file:
         file.write(note_text)
-    logger.info(f"Заметка {note_name} создана.")
+    logger.info(f"Заметка {note_name} успешно создана.")
 
 
 def create_note():
     """запрашивает у пользователя название и текст заметки, а затем вызывает функцию build_note(note_text, note_name)"""
-    note_name = input("Введите название заметки для создания: ")
+    note_name = input("Введите название заметки для создания: ").strip()
+    if not note_name:
+        logger.error("Название заметки не может быть пустым")
+        return
     note_text = input("Введите текст заметки: ")
     build_note(note_text, note_name)
 
@@ -41,7 +44,7 @@ def read_note():
             print(file.read())
         return note_name
     else:
-        logger.error("Заметка не найдена.")
+        logger.error(f"Заметка {note_name} не найдена.")
         return ''
 
 
@@ -79,7 +82,7 @@ def display_notes():
         with open(i, "r", encoding="utf-8") as file:
             dic_notes[i] = len(file.read())
     # сортировка заметок по возрастанию длинны
-    sorted_notes = sorted(dic_notes.items(), key=lambda item: item[1], reverse=False)
+    sorted_notes = sorted(dic_notes.items(), key=lambda item: item[1], reverse=True)
     # вывод заметок в порядке возрастания длинны
     for i in sorted_notes:
         with open(i[0], "r", encoding="utf-8") as file:
@@ -118,6 +121,6 @@ def main():
 
 
 if __name__ == "__main__":
-    # main() todo только для задания 4
-    display_notes()  # todo только для задания 4
+    main()
+    display_notes()  # Выводим заметки от самой длинной до самой короткой
 
