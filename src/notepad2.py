@@ -22,8 +22,8 @@ def build_note(note_text, note_name):
         with open(f"{note_name}.txt", "w", encoding="utf-8") as file:
             file.write(note_text)
         logger.info(f"Заметка {note_name} создана.")
-    except Exception as err:
-        logger.error(f'Произошла ошибка: {err}')
+    except FileNotFoundError:
+        logger.error(f'Невозможно создать файл с именем {note_name}')
 
 
 def create_note():
@@ -32,7 +32,7 @@ def create_note():
         note_name = input("Введите название заметки для создания: ")
         note_text = input("Введите текст заметки: ")
         build_note(note_text, note_name)
-    except Exception as err:
+    except Exception as err:  # не приходит в голову ситуация вызывающая ошибку =/
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -50,8 +50,8 @@ def read_note():
         else:
             logger.error("Заметка не найдена.")
             return ''
-    except Exception as err:
-        logger.error(f'Произошла ошибка: {err}')
+    except FileNotFoundError:
+        logger.error(f'Файл с именем {note_name}.txt не найден.')
 
 
 def edit_note():
@@ -65,8 +65,8 @@ def edit_note():
             with open(f"{note_name}.txt", "w", encoding="utf-8") as file:
                 file.write(note_text)
             logger.info(f"Заметка {note_name} обновлена.")
-    except Exception as err:
-        logger.error(f'Произошла ошибка: {err}')
+    except FileNotFoundError:
+        logger.error(f'Невозможно создать файл с именем {note_name}')
 
 
 def delete_note():
@@ -80,8 +80,8 @@ def delete_note():
             logger.info(f"Заметка {note_name} удалена.")
         else:
             logger.error("Заметка не найдена.")
-    except Exception as err:
-        logger.error(f'Произошла ошибка: {err}')
+    except FileNotFoundError:
+        logger.error(f'Файл с именем {note_name}.txt не найден.')
 
 
 def display_notes():
@@ -101,7 +101,7 @@ def display_notes():
             with open(i[0], "r", encoding="utf-8") as file:
                 print(f'Заметка "{i[0]}".')
                 print(file.read(), '\n')
-    except Exception as err:
+    except Exception as err:  # не приходит в голову ситуация вызывающая ошибку =/
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -122,7 +122,7 @@ def display_sorted_notes():
             with open(i[0], "r", encoding="utf-8") as file:
                 print(f'Заметка "{i[0]}".')
                 print(file.read(), '\n')
-    except Exception as err:
+    except Exception as err:  # не приходит в голову ситуация вызывающая ошибку =/
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -157,7 +157,7 @@ def main():
             time.sleep(0.1)
             if input('Продолжить работу с заметками (y/n)?\n:> ').lower() == 'n':
                 break
-    except Exception as err:
+    except Exception as err:  # не приходит в голову ситуация вызывающая ошибку =/
         logger.error(f'Произошла ошибка: {err}')
 
 
