@@ -31,7 +31,7 @@ NAME, TEXT, READ = range(3)
 note_name, note_text = '', ''
 
 
-# todo Добавить во все функции обработчики ошибок
+# todo Добавить во все функции обработчики ошибок и дописать варианты конкретных ошибок
 
 
 # создаем заметку по полученным данным
@@ -151,10 +151,77 @@ def get_name_note_read(update, context) -> int:
         logger.error(f'Произошла ошибка: {err}')
 
 
+# получение имени заметки для редактирования и вывод в чат если есть, если нет сообщение нет
+def get_name_note_read(update, context) -> int:
+    """Запрос имени заметки для чтения."""
+    try:
+        user = update.message.from_user
+        logger.info(f"Пользователь:  {user.first_name}. Имя заметки для чтения : {update.message.text}.")
+        global note_name
+        note_name = update.message.text
+        update.message.reply_text(read_note(note_name))  # создаем заметку и выводим сообщение о результате
+        return ConversationHandler.END
+    except Exception as err:
+        logger.error(f'Произошла ошибка: {err}')
+
+
 # обработчик для команды /read
-def create_read_handler(update, context):
+def create_read_handler(update, context) -> None:
     try:
         update.message.reply_text('Введите имя заметки для чтения: ')
+        return NAME
+    except Exception as err:
+        # Отправить пользователю сообщение об ошибке
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
+
+
+def edit_note(lc_note_name, lc_note_text) -> str:
+    """Обновляет содержимое файла. Если файла не
+      существует, она выводит сообщение, что заметка не найдена."""
+    try:
+        if lc_note_name != '':
+            with open(f"{lc_note_name}.txt", "w", encoding="utf-8") as file:
+                file.write(lc_note_text)
+            logger.info(f"Заметка {lc_note_name} обновлена.")
+            return f"Заметка {lc_note_name} обновлена."
+    except FileNotFoundError:
+        logger.error(f'Невозможно создать файл с именем {note_name}')
+    except Exception as err:
+        logger.error(f'Произошла ошибка : {err}')
+
+
+# получение имени заметки для редактирования
+def get_name_note_edit(update: Update, context: CallbackContext) -> int:
+    """Запрос нового текста заметки."""
+    try:
+        user = update.message.from_user
+        logger.info(f"Пользователь:  {user.first_name}. Имя редактируемой заметки: {update.message.text}.")
+        global note_name
+        note_name = update.message.text
+        update.message.reply_text('Введите новый текст заметки: ')
+        return TEXT
+    except Exception as err:
+        logger.error(f'Произошла ошибка : {err}')
+
+
+# получение нового текста заметки + создание заметки
+def get_text_note_edit(update: Update, context: CallbackContext) -> int:
+    """Выход из опроса."""
+    try:
+        user = update.message.from_user
+        logger.info(f"Пользователь:  {user.first_name}. Текст редактируемой заметки: {update.message.text}")
+        global note_text
+        note_text = update.message.text
+        update.message.reply_text(edit_note(note_name, note_text))  # создаем заметку и выводим сообщение о результате
+        return ConversationHandler.END
+    except Exception as err:
+        logger.error(f'Произошла ошибка : {err}')
+
+
+# обработчик для команды /edit
+def create_edit_handler(update, context) -> None:
+    try:
+        update.message.reply_text('Введите имя заметки для редактирования: ')
         return NAME
     except Exception as err:
         # Отправить пользователю сообщение об ошибке
@@ -194,8 +261,16 @@ def main() -> None:
         )
         dispatcher.add_handler(conv_handler_read)
 
-        # обработка команды /read
-        updater.dispatcher.add_handler(CommandHandler('read', create_read_handler))
+        # диалог для редактирования заметки, шаги NAME, ТEXT
+        conv_handler_edit = ConversationHandler(
+            entry_points=[CommandHandler('edit', create_edit_handler)],
+            states={
+                NAME: [MessageHandler(Filters.text & ~Filters.command, get_name_note_edit)],
+                TEXT: [MessageHandler(Filters.text & ~Filters.command, get_text_note_edit)],
+            },
+            fallbacks=[CommandHandler('cancel', cancel)],  # принудительный выход из диалога по команде /cancel
+        )
+        dispatcher.add_handler(conv_handler_edit)
 
         # запуск бота
         updater.start_polling()
