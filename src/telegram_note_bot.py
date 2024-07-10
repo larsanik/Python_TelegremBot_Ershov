@@ -36,7 +36,7 @@ note_name, note_text = '', ''
 
 # создаем заметку по полученным данным
 def build_note(lc_note_text, lc_note_name) -> str:
-    """получает название и текст заметки, а затем создает текстовый файл с этим названием и текстом"""
+    """Получает название и текст заметки, а затем создает текстовый файл с этим названием и текстом"""
     try:
         if lc_note_text == '':
             logger.error("Текст заметки не может быть пустым.")
@@ -269,7 +269,7 @@ def create_delete_handler(update, context) -> int:
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
 
-def display_notes(update) -> None:
+def display_sorted_notes(update, context) -> None:
     """Выводит все заметки пользователя в порядке уменьшения длинны"""
     try:
         # формирование списка файлов с заметками
@@ -285,7 +285,7 @@ def display_notes(update) -> None:
         for i in sorted_notes:
             with open(i[0], "r", encoding="utf-8") as file:
                 update.message.reply_text(f'Заметка "{i[0]}".')
-                update.message.reply_text(file.read(), '\n')
+                update.message.reply_text(file.read())
     except Exception as err:  # не приходит в голову ситуация вызывающая ошибку =/
         logger.error(f'Произошла ошибка: {err}')
 
@@ -345,7 +345,7 @@ def main() -> None:
         dispatcher.add_handler(conv_handler_delete)
 
         # обработка команды /display
-        updater.dispatcher.add_handler(CommandHandler('display', display_notes))
+        updater.dispatcher.add_handler(CommandHandler('display', display_sorted_notes))
 
         # запуск бота
         updater.start_polling()
