@@ -110,8 +110,7 @@ def create_start_handler(update, context):
         /read - чтение заметки
         /edit - замена текста заметки
         /delete - удаление заметки
-        /display - вывод списка заметок
-        /display_sorted - вывод списка заметок в порядке уменьшения длинны
+        /display - вывод списка заметок в порядке уменьшения длинны
         /key_on - включение виртуальной клавиатуры
         /key_off - выключение виртуальной клавиатуры
         """
@@ -228,7 +227,7 @@ def create_edit_handler(update, context) -> None:
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
 
-def delete_note(lc_note_name):
+def delete_note(lc_note_name) -> str:
     """Функция удаляет файл.
     Для удаления используйте функцию os.remove из модуля os. Если файла не существует, она выводит сообщение,
     что заметка не найдена."""
@@ -261,13 +260,34 @@ def get_name_note_delete(update, context) -> int:
 
 
 # обработчик для команды /delete
-def create_delete_handler(update, context) -> None:
+def create_delete_handler(update, context) -> int:
     try:
         update.message.reply_text('Введите имя заметки для удаления: ')
         return NAME
     except Exception as err:
         # Отправить пользователю сообщение об ошибке
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
+
+
+def display_notes(update) -> None:
+    """Выводит все заметки пользователя в порядке уменьшения длинны"""
+    try:
+        # формирование списка файлов с заметками
+        notes = [note for note in os.listdir() if note.endswith(".txt")]
+        # создание словаря с именем файла и длинной заметки
+        dic_notes = {}
+        for i in notes:
+            with open(i, "r", encoding="utf-8") as file:
+                dic_notes[i] = len(file.read())
+        # сортировка заметок по уменьшению длинны
+        sorted_notes = sorted(dic_notes.items(), key=lambda item: item[1], reverse=True)
+        # вывод заметок в порядке уменьшения длинны
+        for i in sorted_notes:
+            with open(i[0], "r", encoding="utf-8") as file:
+                update.message.reply_text(f'Заметка "{i[0]}".')
+                update.message.reply_text(file.read(), '\n')
+    except Exception as err:  # не приходит в голову ситуация вызывающая ошибку =/
+        logger.error(f'Произошла ошибка: {err}')
 
 
 def main() -> None:
@@ -323,6 +343,9 @@ def main() -> None:
             fallbacks=[CommandHandler('cancel', cancel)],  # принудительный выход из диалога по команде /cancel
         )
         dispatcher.add_handler(conv_handler_delete)
+
+        # обработка команды /display
+        updater.dispatcher.add_handler(CommandHandler('display', display_notes))
 
         # запуск бота
         updater.start_polling()
