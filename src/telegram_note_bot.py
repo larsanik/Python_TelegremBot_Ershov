@@ -6,14 +6,13 @@
 
 import logging
 import os
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
     Updater,
     CommandHandler,
     MessageHandler,
     Filters,
-    ConversationHandler,
-    CallbackContext,
+    ConversationHandler
 )
 import secrets  # API_TOKEN = '<ТОКЕN>'
 
@@ -29,9 +28,6 @@ NAME, TEXT, READ = range(3)
 
 # Глобальные переменные для передачи значений
 note_name, note_text = '', ''
-
-
-# todo Добавить во все функции обработчики ошибок и дописать варианты конкретных ошибок
 
 
 # создаем заметку по полученным данным
@@ -51,7 +47,7 @@ def build_note(lc_note_text, lc_note_name) -> str:
 
 
 # запуск ввода данных для создания заметок
-def create_note_handler(update: Update, context: CallbackContext) -> int:
+def create_note_handler(update, context) -> int:
     """Запрос имени заметки."""
     try:
         update.message.reply_text('Введите имя заметки: ')
@@ -61,7 +57,7 @@ def create_note_handler(update: Update, context: CallbackContext) -> int:
 
 
 # получение имени заметки для создания
-def get_name_note_create(update: Update, context: CallbackContext) -> int:
+def get_name_note_create(update, context) -> int:
     """Запрос текста заметки."""
     try:
         user = update.message.from_user
@@ -75,7 +71,7 @@ def get_name_note_create(update: Update, context: CallbackContext) -> int:
 
 
 # получение текста заметки + создание заметки
-def get_text_note(update: Update, context: CallbackContext) -> int:
+def get_text_note(update, context) -> int:
     """Выход из опроса."""
     try:
         user = update.message.from_user
@@ -88,7 +84,7 @@ def get_text_note(update: Update, context: CallbackContext) -> int:
         logger.error(f'Произошла ошибка: {err}')
 
 
-def cancel(update: Update, context: CallbackContext) -> int:
+def cancel(update, context) -> int:
     """Выход из диалога по команде /cancel."""
     try:
         user = update.message.from_user
@@ -113,6 +109,7 @@ def create_start_handler(update, context):
         /display - вывод списка заметок в порядке уменьшения длинны
         /key_on - включение виртуальной клавиатуры
         /key_off - выключение виртуальной клавиатуры
+        /help - выводит справку по командам
         """
         context.bot.send_message(chat_id=update.message.chat_id, text=msg_start)
     except Exception as err:
@@ -137,20 +134,6 @@ def read_note(lc_note_name) -> str:
 
 
 # получение имени заметки для чтения и вывод в чат если есть, если нет сообщение нет
-def get_name_note_read(update, context) -> int:
-    """Запрос имени заметки для чтения."""
-    try:
-        user = update.message.from_user
-        logger.info(f"Пользователь:  {user.first_name}. Имя заметки для чтения : {update.message.text}.")
-        global note_name
-        note_name = update.message.text
-        update.message.reply_text(read_note(note_name))  # создаем заметку и выводим сообщение о результате
-        return ConversationHandler.END
-    except Exception as err:
-        logger.error(f'Произошла ошибка: {err}')
-
-
-# получение имени заметки для редактирования и вывод в чат если есть, если нет сообщение нет
 def get_name_note_read(update, context) -> int:
     """Запрос имени заметки для чтения."""
     try:
@@ -190,21 +173,27 @@ def edit_note(lc_note_name, lc_note_text) -> str:
 
 
 # получение имени заметки для редактирования
-def get_name_note_edit(update: Update, context: CallbackContext) -> int:
+def get_name_note_edit(update, context) -> int:
     """Запрос нового текста заметки."""
     try:
         user = update.message.from_user
         logger.info(f"Пользователь:  {user.first_name}. Имя редактируемой заметки: {update.message.text}.")
         global note_name
         note_name = update.message.text
-        update.message.reply_text('Введите новый текст заметки: ')
-        return TEXT
+        if os.path.isfile(note_name + '.txt'):
+            update.message.reply_text('Введите новый текст заметки: ')
+            return TEXT
+        else:
+            logger.error(f"Пользователь:  {user.first_name}. Заметка {note_name} не найдена.")
+            update.message.reply_text(f'Заметка с именем {note_name} не найдена')
+            update.message.reply_text('Введите имя заметки для редактирования еще раз:')
+            return NAME
     except Exception as err:
         logger.error(f'Произошла ошибка : {err}')
 
 
 # получение нового текста заметки + создание заметки
-def get_text_note_edit(update: Update, context: CallbackContext) -> int:
+def get_text_note_edit(update, context) -> int:
     """Выход из опроса."""
     try:
         user = update.message.from_user
@@ -290,6 +279,53 @@ def display_sorted_notes(update, context) -> None:
         logger.error(f'Произошла ошибка: {err}')
 
 
+def key_on(update, context) -> None:
+    """Добавляет виртуальную клавиатуру с командами"""
+    reply_keyboard = [['/start'],
+                      ['/create'],
+                      ['/cancel'],
+                      ['/read'],
+                      ['/edit'],
+                      ['/delete'],
+                      ['/display'],
+                      ['/key_off'],
+                      ['/help']]
+
+    update.message.reply_text(
+        'Виртуальная клавиатура добавлена в бот.',
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard, resize_keyboard=True, one_time_keyboard=True,
+            input_field_placeholder='Выберите команду или введите ответ на запрос'
+        ),
+    )
+
+
+def key_off(update, context) -> None:
+    """Убирает виртуальную клавиатуру с командами"""
+    update.message.reply_text(
+        'Виртуальная клавиатура убрана из бота.',
+        reply_markup=ReplyKeyboardRemove(),
+    )
+
+
+def help_view(update, context) -> None:
+    """Выводит справку по командам"""
+    update.message.reply_text(""" Бот для работы с заметками.
+        Команды:
+        /start - запуск бота
+        /create - создание заметки
+        /cancel - выход из диалога
+        /read - чтение заметки
+        /edit - замена текста заметки
+        /delete - удаление заметки
+        /display - вывод списка заметок в порядке уменьшения длинны
+        /key_on - включение виртуальной клавиатуры
+        /key_off - выключение виртуальной клавиатуры
+        /help - выводит справку по командам
+        """
+                              )
+
+
 def main() -> None:
     """Запуск бота."""
     try:
@@ -347,6 +383,15 @@ def main() -> None:
         # обработка команды /display
         updater.dispatcher.add_handler(CommandHandler('display', display_sorted_notes))
 
+        # обработка команды /key_on
+        updater.dispatcher.add_handler(CommandHandler('key_on', key_on))
+
+        # обработка команды /key_off
+        updater.dispatcher.add_handler(CommandHandler('key_off', key_off))
+
+        # обработка команды /help
+        updater.dispatcher.add_handler(CommandHandler('help', help_view))
+
         # запуск бота
         updater.start_polling()
 
@@ -359,5 +404,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
-
