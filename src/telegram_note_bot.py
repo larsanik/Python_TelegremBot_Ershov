@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Задание 7. Подключите бота к Telegram
+# Задание 7. Подключите бота к Telegram.
 # Используйте Telegram API, чтобы создать бота в Telegram.
 # Вынес в отдельный исходник, так как от notepad2 почти ничего не остается =о)
 # *****************************************************************************
@@ -15,7 +15,7 @@ from telegram.ext import (
     ConversationHandler,
     CallbackContext,
 )
-import secrets
+import secrets  # API_TOKEN = '<ТОКЕN>'
 
 # Включение логирования
 logging.basicConfig(
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 # шаги ввода данных
 NAME, TEXT, READ = range(3)
 
-# глобалки для передачи значений
+# Глобальные переменные для передачи значений
 note_name, note_text = '', ''
 
 
@@ -112,8 +112,8 @@ def create_start_handler(update, context):
         /delete - удаление заметки
         /display - вывод списка заметок
         /display_sorted - вывод списка заметок в порядке уменьшения длинны
-        /keyb_on - включение виртуальной клавиатуры
-        /keyb_off - выключение виртуальной клавиатуры
+        /key_on - включение виртуальной клавиатуры
+        /key_off - выключение виртуальной клавиатуры
         """
         context.bot.send_message(chat_id=update.message.chat_id, text=msg_start)
     except Exception as err:
@@ -228,6 +228,48 @@ def create_edit_handler(update, context) -> None:
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
 
+def delete_note(lc_note_name):
+    """Функция удаляет файл.
+    Для удаления используйте функцию os.remove из модуля os. Если файла не существует, она выводит сообщение,
+    что заметка не найдена."""
+    try:
+        if os.path.isfile(lc_note_name + '.txt'):
+            os.remove(lc_note_name + '.txt')
+            logger.info(f"Заметка {note_name} удалена.")
+            return f"Заметка {lc_note_name} удалена."
+        else:
+            logger.error(f"Заметка  {lc_note_name} не найдена.")
+            return f"Заметка  {lc_note_name} не найдена."
+    except FileNotFoundError:
+        logger.error(f'Файл с именем {note_name}.txt не найден.')
+    except Exception as err:
+        logger.error(f'Произошла ошибка: {err}')
+
+
+# получение имени заметки для удаления
+def get_name_note_delete(update, context) -> int:
+    """Запрос имени заметки для удаления."""
+    try:
+        user = update.message.from_user
+        logger.info(f"Пользователь:  {user.first_name}. Имя заметки для удаления : {update.message.text}.")
+        global note_name
+        note_name = update.message.text
+        update.message.reply_text(delete_note(note_name))  # удаляем заметку и выводим сообщение о результате
+        return ConversationHandler.END
+    except Exception as err:
+        logger.error(f'Произошла ошибка: {err}')
+
+
+# обработчик для команды /delete
+def create_delete_handler(update, context) -> None:
+    try:
+        update.message.reply_text('Введите имя заметки для удаления: ')
+        return NAME
+    except Exception as err:
+        # Отправить пользователю сообщение об ошибке
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
+
+
 def main() -> None:
     """Запуск бота."""
     try:
@@ -271,6 +313,16 @@ def main() -> None:
             fallbacks=[CommandHandler('cancel', cancel)],  # принудительный выход из диалога по команде /cancel
         )
         dispatcher.add_handler(conv_handler_edit)
+
+        # диалог для удаления заметки, шаг NAME
+        conv_handler_delete = ConversationHandler(
+            entry_points=[CommandHandler('delete', create_delete_handler)],
+            states={
+                NAME: [MessageHandler(Filters.text & ~Filters.command, get_name_note_delete)],
+            },
+            fallbacks=[CommandHandler('cancel', cancel)],  # принудительный выход из диалога по команде /cancel
+        )
+        dispatcher.add_handler(conv_handler_delete)
 
         # запуск бота
         updater.start_polling()
