@@ -24,6 +24,8 @@ def build_note(note_text, note_name):
         logger.info(f"Заметка {note_name} создана.")
     except FileNotFoundError:
         logger.error(f'Невозможно создать файл с именем {note_name}')
+    except Exception as err:
+        logger.error(f'Произошла ошибка: {err}')
 
 
 def create_note():
@@ -52,10 +54,12 @@ def read_note():
             return ''
     except FileNotFoundError:
         logger.error(f'Файл с именем {note_name}.txt не найден.')
+    except Exception as err:
+        logger.error(f'Произошла ошибка: {err}')
 
 
 def edit_note():
-    """запрашивает у пользователя название заметки. Если файл с введенным именем существует, функция считывает и выводит
+    """Запрашивает у пользователя название заметки. Если файл с введенным именем существует, функция считывает и выводит
      содержимое файла, запрашивает у пользователя новый текст заметки и обновляет содержимое файла. Если файла не
       существует, она выводит сообщение, что заметка не найдена."""
     try:
@@ -67,6 +71,8 @@ def edit_note():
             logger.info(f"Заметка {note_name} обновлена.")
     except FileNotFoundError:
         logger.error(f'Невозможно создать файл с именем {note_name}')
+    except Exception as err:
+        logger.error(f'Произошла ошибка: {err}')
 
 
 def delete_note():
@@ -82,6 +88,8 @@ def delete_note():
             logger.error("Заметка не найдена.")
     except FileNotFoundError:
         logger.error(f'Файл с именем {note_name}.txt не найден.')
+    except Exception as err:
+        logger.error(f'Произошла ошибка: {err}')
 
 
 def display_notes():
@@ -127,7 +135,7 @@ def display_sorted_notes():
 
 
 def main():
-    """содержит основной цикл программы. Функция отображает меню с вариантами действий с заметками, которые пользователь
+    """Содержит основной цикл программы. Функция отображает меню с вариантами действий с заметками, которые пользователь
      может выбрать. Затем функция выполняет действие, которое выбрал пользователь."""
     try:
         while True:
