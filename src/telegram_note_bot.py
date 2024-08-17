@@ -26,9 +26,6 @@ logger = logging.getLogger(__name__)
 # шаги ввода данных
 NAME, TEXT, READ = range(3)
 
-# Глобальные переменные для передачи значений
-note_name, note_text = '', ''
-
 
 # создаем заметку по полученным данным
 def build_note(lc_note_text, lc_note_name) -> str:
@@ -62,8 +59,7 @@ def get_name_note_create(update, context) -> int:
     try:
         user = update.message.from_user
         logger.info(f"Пользователь:  {user.first_name}. Имя создаваемой заметки: {update.message.text}.")
-        global note_name
-        note_name = update.message.text
+        context.user_data['note_name'] = update.message.text
         update.message.reply_text('Введите текст заметки: ')
         return TEXT
     except Exception as err:
@@ -76,9 +72,9 @@ def get_text_note(update, context) -> int:
     try:
         user = update.message.from_user
         logger.info(f"Пользователь:  {user.first_name}. Текст создаваемой заметки: {update.message.text}")
-        global note_text
-        note_text = update.message.text
-        update.message.reply_text(build_note(note_text, note_name))  # создаем заметку и выводим сообщение о результате
+        context.user_data['note_text'] = update.message.text
+        # создаем заметку и выводим сообщение о результате
+        update.message.reply_text(build_note(context.user_data['note_text'], context.user_data['note_name']))  #
         return ConversationHandler.END
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
@@ -117,17 +113,17 @@ def create_start_handler(update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
 
-def read_note(lc_note_name) -> str:
+def read_note(note_name) -> str:
     """Читает заметку. Если файл с таким названием существует, функция считывает содержимое
     файла и выводит его на экран. Если файла не существует, функция выводит сообщение, что заметка не найдена.
     Для проверки наличия файла используйте функцию os.path.isfile из модуля os.
     Не забудьте импортировать этот модуль."""
     try:
-        if os.path.isfile(lc_note_name + ".txt"):
-            with open(f"{lc_note_name}.txt", "r", encoding="utf-8") as file:
+        if os.path.isfile(note_name + ".txt"):
+            with open(f"{note_name}.txt", "r", encoding="utf-8") as file:
                 return file.read()
         else:
-            logger.error(f"Заметка {lc_note_name} не найдена.")
+            logger.error(f"Заметка {note_name} не найдена.")
             return f"Заметка {note_name} не найдена."
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
@@ -139,9 +135,9 @@ def get_name_note_read(update, context) -> int:
     try:
         user = update.message.from_user
         logger.info(f"Пользователь:  {user.first_name}. Имя заметки для чтения : {update.message.text}.")
-        global note_name
-        note_name = update.message.text
-        update.message.reply_text(read_note(note_name))  # создаем заметку и выводим сообщение о результате
+        context.user_data['note_name'] = update.message.text
+        # создаем заметку и выводим сообщение о результате
+        update.message.reply_text(read_note(context.user_data['note_name']))
         return ConversationHandler.END
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
@@ -157,17 +153,17 @@ def create_read_handler(update, context) -> None:
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
 
-def edit_note(lc_note_name, lc_note_text) -> str:
+def edit_note(note_name, note_text) -> str:
     """Обновляет содержимое файла. Если файла не
       существует, она выводит сообщение, что заметка не найдена."""
     try:
-        if lc_note_name != '':
-            with open(f"{lc_note_name}.txt", "w", encoding="utf-8") as file:
-                file.write(lc_note_text)
-            logger.info(f"Заметка {lc_note_name} обновлена.")
-            return f"Заметка {lc_note_name} обновлена."
+        if note_name != '':
+            with open(f"{note_name}.txt", "w", encoding="utf-8") as file:
+                file.write(note_text)
+            logger.info(f"Заметка {note_name} обновлена.")
+            return f"Заметка {note_name} обновлена."
     except FileNotFoundError:
-        logger.error(f'Невозможно создать файл с именем {note_name}')
+        logger.error(f"Невозможно создать файл с именем {note_name}")
     except Exception as err:
         logger.error(f'Произошла ошибка : {err}')
 
@@ -178,14 +174,13 @@ def get_name_note_edit(update, context) -> int:
     try:
         user = update.message.from_user
         logger.info(f"Пользователь:  {user.first_name}. Имя редактируемой заметки: {update.message.text}.")
-        global note_name
-        note_name = update.message.text
-        if os.path.isfile(note_name + '.txt'):
+        context.user_data['note_name'] = update.message.text
+        if os.path.isfile(context.user_data['note_name'] + '.txt'):
             update.message.reply_text('Введите новый текст заметки: ')
             return TEXT
         else:
-            logger.error(f"Пользователь:  {user.first_name}. Заметка {note_name} не найдена.")
-            update.message.reply_text(f'Заметка с именем {note_name} не найдена')
+            logger.error(f"Пользователь:  {user.first_name}. Заметка {context.user_data['note_name']} не найдена.")
+            update.message.reply_text(f"Заметка с именем {context.user_data['note_name']} не найдена")
             update.message.reply_text('Введите имя заметки для редактирования еще раз:')
             return NAME
     except Exception as err:
@@ -198,9 +193,9 @@ def get_text_note_edit(update, context) -> int:
     try:
         user = update.message.from_user
         logger.info(f"Пользователь:  {user.first_name}. Текст редактируемой заметки: {update.message.text}")
-        global note_text
-        note_text = update.message.text
-        update.message.reply_text(edit_note(note_name, note_text))  # создаем заметку и выводим сообщение о результате
+        context.user_data['note_text'] = update.message.text
+        # создаем заметку и выводим сообщение о результате
+        update.message.reply_text(edit_note(context.user_data['note_name'], context.user_data['note_text']))
         return ConversationHandler.END
     except Exception as err:
         logger.error(f'Произошла ошибка : {err}')
@@ -216,20 +211,20 @@ def create_edit_handler(update, context) -> None:
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
 
-def delete_note(lc_note_name) -> str:
+def delete_note(note_name) -> str:
     """Функция удаляет файл.
     Для удаления используйте функцию os.remove из модуля os. Если файла не существует, она выводит сообщение,
     что заметка не найдена."""
     try:
-        if os.path.isfile(lc_note_name + '.txt'):
-            os.remove(lc_note_name + '.txt')
+        if os.path.isfile(note_name + '.txt'):
+            os.remove(note_name + '.txt')
             logger.info(f"Заметка {note_name} удалена.")
-            return f"Заметка {lc_note_name} удалена."
+            return f"Заметка {note_name} удалена."
         else:
-            logger.error(f"Заметка  {lc_note_name} не найдена.")
-            return f"Заметка  {lc_note_name} не найдена."
+            logger.error(f"Заметка  {note_name} не найдена.")
+            return f"Заметка  {note_name} не найдена."
     except FileNotFoundError:
-        logger.error(f'Файл с именем {note_name}.txt не найден.')
+        logger.error(f"Файл с именем {note_name}.txt не найден.")
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
 
@@ -240,9 +235,9 @@ def get_name_note_delete(update, context) -> int:
     try:
         user = update.message.from_user
         logger.info(f"Пользователь:  {user.first_name}. Имя заметки для удаления : {update.message.text}.")
-        global note_name
-        note_name = update.message.text
-        update.message.reply_text(delete_note(note_name))  # удаляем заметку и выводим сообщение о результате
+        context.user_data['note_name'] = update.message.text
+        # удаляем заметку и выводим сообщение о результате
+        update.message.reply_text(delete_note(context.user_data['note_name']))
         return ConversationHandler.END
     except Exception as err:
         logger.error(f'Произошла ошибка: {err}')
