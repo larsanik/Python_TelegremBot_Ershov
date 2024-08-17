@@ -93,6 +93,7 @@ def cancel(update, context) -> int:
 
 # обработчик для команды /start
 def create_start_handler(update, context):
+    """Формирование сообщения пользователю по команде start."""
     try:
         msg_start = """ Бот для работы с заметками.
         Команды:
@@ -143,8 +144,8 @@ def get_name_note_read(update, context) -> int:
         logger.error(f'Произошла ошибка: {err}')
 
 
-# обработчик для команды /read
 def create_read_handler(update, context) -> None:
+    """Обработчик для команды read"""
     try:
         update.message.reply_text('Введите имя заметки для чтения: ')
         return NAME
@@ -168,7 +169,6 @@ def edit_note(note_name, note_text) -> str:
         logger.error(f'Произошла ошибка : {err}')
 
 
-# получение имени заметки для редактирования
 def get_name_note_edit(update, context) -> int:
     """Запрос нового текста заметки."""
     try:
@@ -187,7 +187,6 @@ def get_name_note_edit(update, context) -> int:
         logger.error(f'Произошла ошибка : {err}')
 
 
-# получение нового текста заметки + создание заметки
 def get_text_note_edit(update, context) -> int:
     """Выход из опроса."""
     try:
@@ -201,8 +200,8 @@ def get_text_note_edit(update, context) -> int:
         logger.error(f'Произошла ошибка : {err}')
 
 
-# обработчик для команды /edit
 def create_edit_handler(update, context) -> None:
+    """Обработчик для команды edit"""
     try:
         update.message.reply_text('Введите имя заметки для редактирования: ')
         return NAME
@@ -229,7 +228,6 @@ def delete_note(note_name) -> str:
         logger.error(f'Произошла ошибка: {err}')
 
 
-# получение имени заметки для удаления
 def get_name_note_delete(update, context) -> int:
     """Запрос имени заметки для удаления."""
     try:
@@ -243,8 +241,8 @@ def get_name_note_delete(update, context) -> int:
         logger.error(f'Произошла ошибка: {err}')
 
 
-# обработчик для команды /delete
 def create_delete_handler(update, context) -> int:
+    """Обработчик для команды delete"""
     try:
         update.message.reply_text('Введите имя заметки для удаления: ')
         return NAME
