@@ -39,7 +39,7 @@ def build_note(lc_note_text, lc_note_name) -> str:
                 file.write(lc_note_text)
             logger.info(f"Заметка {lc_note_name} создана.")
             return f"Заметка {lc_note_name} создана."
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -49,7 +49,7 @@ def create_note_handler(update, context) -> int:
     try:
         update.message.reply_text('Введите имя заметки: ')
         return NAME
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -62,7 +62,7 @@ def get_name_note_create(update, context) -> int:
         context.user_data['note_name'] = update.message.text
         update.message.reply_text('Введите текст заметки: ')
         return TEXT
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -76,7 +76,7 @@ def get_text_note(update, context) -> int:
         # создаем заметку и выводим сообщение о результате
         update.message.reply_text(build_note(context.user_data['note_text'], context.user_data['note_name']))  #
         return ConversationHandler.END
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -87,7 +87,7 @@ def cancel(update, context) -> int:
         logger.info(f"Пользователь {user.first_name} вышел из диалога.")
         update.message.reply_text('Запрос данных прерван пользователем.')
         return ConversationHandler.END
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -109,7 +109,7 @@ def create_start_handler(update, context):
         /help - выводит справку по командам
         """
         context.bot.send_message(chat_id=update.message.chat_id, text=msg_start)
-    except Exception as err:
+    except AttributeError as err:
         # Отправить пользователю сообщение об ошибке
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
@@ -126,7 +126,7 @@ def read_note(note_name) -> str:
         else:
             logger.error(f"Заметка {note_name} не найдена.")
             return f"Заметка {note_name} не найдена."
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -140,7 +140,7 @@ def get_name_note_read(update, context) -> int:
         # создаем заметку и выводим сообщение о результате
         update.message.reply_text(read_note(context.user_data['note_name']))
         return ConversationHandler.END
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -149,7 +149,7 @@ def create_read_handler(update, context) -> None:
     try:
         update.message.reply_text('Введите имя заметки для чтения: ')
         return NAME
-    except Exception as err:
+    except AttributeError as err:
         # Отправить пользователю сообщение об ошибке
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
@@ -165,7 +165,7 @@ def edit_note(note_name, note_text) -> str:
             return f"Заметка {note_name} обновлена."
     except FileNotFoundError:
         logger.error(f"Невозможно создать файл с именем {note_name}")
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка : {err}')
 
 
@@ -183,7 +183,7 @@ def get_name_note_edit(update, context) -> int:
             update.message.reply_text(f"Заметка с именем {context.user_data['note_name']} не найдена")
             update.message.reply_text('Введите имя заметки для редактирования еще раз:')
             return NAME
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка : {err}')
 
 
@@ -196,7 +196,7 @@ def get_text_note_edit(update, context) -> int:
         # создаем заметку и выводим сообщение о результате
         update.message.reply_text(edit_note(context.user_data['note_name'], context.user_data['note_text']))
         return ConversationHandler.END
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка : {err}')
 
 
@@ -205,7 +205,7 @@ def create_edit_handler(update, context) -> None:
     try:
         update.message.reply_text('Введите имя заметки для редактирования: ')
         return NAME
-    except Exception as err:
+    except AttributeError as err:
         # Отправить пользователю сообщение об ошибке
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
@@ -224,7 +224,7 @@ def delete_note(note_name) -> str:
             return f"Заметка  {note_name} не найдена."
     except FileNotFoundError:
         logger.error(f"Файл с именем {note_name}.txt не найден.")
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -237,7 +237,7 @@ def get_name_note_delete(update, context) -> int:
         # удаляем заметку и выводим сообщение о результате
         update.message.reply_text(delete_note(context.user_data['note_name']))
         return ConversationHandler.END
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -246,7 +246,7 @@ def create_delete_handler(update, context) -> int:
     try:
         update.message.reply_text('Введите имя заметки для удаления: ')
         return NAME
-    except Exception as err:
+    except AttributeError as err:
         # Отправить пользователю сообщение об ошибке
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Произошла ошибка: {err}")
 
@@ -268,7 +268,7 @@ def display_sorted_notes(update, context) -> None:
             with open(i[0], "r", encoding="utf-8") as file:
                 update.message.reply_text(f'Заметка "{i[0]}".')
                 update.message.reply_text(file.read())
-    except Exception as err:  # не приходит в голову ситуация вызывающая ошибку =/
+    except AttributeError as err:  # не приходит в голову ситуация вызывающая ошибку =/
         logger.error(f'Произошла ошибка: {err}')
 
 
@@ -391,7 +391,7 @@ def main() -> None:
         # для корректной остановки бота по запросу из ide
         updater.idle()
 
-    except Exception as err:
+    except AttributeError as err:
         logger.error(f'Произошла ошибка: {err}')
 
 
