@@ -34,7 +34,7 @@ def ask_move(player, board):
     # находится ли координата в пределах поля и свободно ли место
     if (0 <= x <= (sze - 1)) and (0 <= y <= (sze - 1)) and (board[y][x] == " "):
         # если свободно, вернуть координаты
-        return (x, y)
+        return x, y
     else:
         print(f"Клетка {x} {y} занята. Попробуйте еще раз.")
         return ask_move(player, board)
@@ -57,29 +57,29 @@ def check_win(player, board):
     sze = len(board)
     # проверяем строки
     for i in range(sze):
-        str = ''
+        val_str = ''
         for ii in range(sze):
-            str = str + board[i][ii]
-        if str == player * sze:
+            val_str = val_str + board[i][ii]
+        if val_str == player * sze:
             return True
     # проверяем столбцы
     for i in range(sze):
-        str = ''
+        val_str = ''
         for ii in range(sze):
-            str = str + board[ii][i]
-        if str == player * sze:
+            val_str = val_str + board[ii][i]
+        if val_str == player * sze:
             return True
     # проверяем диогональ лв-пн
-    str = ''
+    val_str = ''
     for i in range(sze):
-        str = str + board[i][i]
-    if str == player * sze:
+        val_str = val_str + board[i][i]
+    if val_str == player * sze:
         return True
     # проверяем диогональ лн-пв
-    str = ''
+    val_str = ''
     for i in range(sze):
-        str = str + board[(sze - 1) - i][i]
-    if str == player * sze:
+        val_str = val_str + board[(sze - 1) - i][i]
+    if val_str == player * sze:
         return True
 
 
