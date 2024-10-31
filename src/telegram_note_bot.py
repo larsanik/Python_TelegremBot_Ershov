@@ -10,16 +10,17 @@
 # 3. Затем включите этот класс в основную функцию приложения (функция main()), чтобы дать пользователю возможность
 # создавать, читать, редактировать и удалять события, а также отображать весь список событий.
 # *****************************************************************************
-
 import logging
 import os
+import datetime
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
     Updater,
     CommandHandler,
     MessageHandler,
     Filters,
-    ConversationHandler
+    ConversationHandler#,
+    #CallbackContext
 )
 import secrets  # API_TOKEN = '<ТОКЕN>'
 
@@ -326,6 +327,30 @@ def help_view(update, context) -> None:
                               )
 
 
+# ******** Задание 8 Календарь START ********
+# Создать класс Calendar
+class Calendar:
+    def __init__(self):
+        self.events = {}
+
+    # Создать метод create_event
+    def create_event(self, event_name, event_date, event_time, event_details):
+        event_id = len(self.events) + 1
+        event = {
+            "id": event_id,
+            "name": event_name,
+            "date": event_date,
+            "time": event_time,
+            "details": event_details
+        }
+        self.events[event_id] = event
+        return event_id
+# ******** Задание 8 Календарь END ********
+
+
+
+
+
 def main() -> None:
     """Запуск бота."""
     try:
@@ -391,6 +416,31 @@ def main() -> None:
 
         # обработка команды /help
         updater.dispatcher.add_handler(CommandHandler('help', help_view))
+
+        # ***************************
+        # Зададим глобально доступный объект календаря
+        calendar = Calendar()
+
+        def event_create_handler(update, context):
+            try:
+                # Взять данные о событии из сообщения пользователя
+                event_name = update.message.text[14:]
+                event_date = datetime.datetime.now().strftime('%Y-%m-%d')
+                event_time = datetime.datetime.now().time().strftime('%H:%M')
+                event_details = "Описание события"
+
+                # Создать событие с помощью метода create_event класса Calendar
+                event_id = calendar.create_event(event_name, event_date, event_time, event_details)
+
+                # Отправить пользователю подтверждение
+                context.bot.send_message(chat_id=update.message.chat_id,
+                                         text=f"Событие {event_name} создано и имеет номер {event_id}.")
+            except AttributeError as err:
+                # Отправить пользователю сообщение об ошибке
+                context.bot.send_message(chat_id=update.message.chat_id,
+                                         text=f'При создании события произошла ошибка {err}.')
+        # Зарегистрировать обработчик, чтобы он вызывался по команде /create_event
+        updater.dispatcher.add_handler(CommandHandler('create_event', event_create_handler))
 
         # запуск бота
         updater.start_polling()
