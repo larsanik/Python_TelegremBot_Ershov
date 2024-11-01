@@ -19,24 +19,20 @@ class Calendar:
         return event_id
 
     # метод read_event
-    def read_event(self, event_id):
+    def read_event(self, id_event):
         str_out = ''
-        for i, ii in calendar.events[event_id].items():
-            str_out = str_out + str(i) + ': ' + str(ii) + '\n'
+        for key, val in self.events[id_event].items():
+            str_out = str_out + str(key) + ': ' + str(val) + '\n'
         return str_out
 
 
 calendar = Calendar()
-event_name = 'event 1'
-event_date = datetime.datetime.now().strftime('%Y-%m-%d')
-event_time = datetime.datetime.now().time().strftime('%H:%M')
-event_details = "Какое то событие"
-
-# Создать событие с помощью метода create_event класса Calendar
-event_id = calendar.create_event(event_name, event_date, event_time, event_details)
+for i in range(5):
+    event_name = f'event {i}'
+    event_date = datetime.datetime.now().strftime('%Y-%m-%d')
+    event_time = datetime.datetime.now().time().strftime('%H:%M')
+    event_details = f'Какое то событие {i}'
+    # Создать событие с помощью метода create_event класса Calendar
+    event_id = calendar.create_event(event_name, event_date, event_time, event_details)
 
 print(calendar.read_event(1))
-
-
-
-

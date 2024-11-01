@@ -347,8 +347,11 @@ class Calendar:
         return event_id
 
     # метод read_event
-    def read_event(self, id):
-        return
+    def read_event(self, id_event):
+        str_out = ''
+        for key, val in self.events[id_event].items():
+            str_out = str_out + str(key) + ': ' + str(val) + '\n'
+        return str_out
 # ******** Задание 8 Календарь END ********
 
 
@@ -419,9 +422,10 @@ def main() -> None:
         updater.dispatcher.add_handler(CommandHandler('help', help_view))
 
         # ***************************
-        # Зададим глобально доступный объект календаря
+        # глобально доступный объект календаря
         calendar = Calendar()
 
+        # обработчик для создания событий
         def event_create_handler(update, context):
             try:
                 # Взять данные о событии из сообщения пользователя
@@ -436,12 +440,22 @@ def main() -> None:
                 # Отправить пользователю подтверждение
                 context.bot.send_message(chat_id=update.message.chat_id,
                                          text=f"Событие {event_name} создано и имеет номер {event_id}.")
-            except AttributeError as err:
+            except AttributeError as error_info:
                 # Отправить пользователю сообщение об ошибке
                 context.bot.send_message(chat_id=update.message.chat_id,
-                                         text=f'При создании события произошла ошибка {err}.')
+                                         text=f'При создании события произошла ошибка {error_info}.')
         # Зарегистрировать обработчик, чтобы он вызывался по команде /create_event
         updater.dispatcher.add_handler(CommandHandler('create_event', event_create_handler))
+
+        # обработчик для чтения событий
+        def event_read_handler(update, context):
+            try:
+                ...
+            except AttributeError as error_info:
+                # Отправить пользователю сообщение об ошибке
+                context.bot.send_message(chat_id=update.message.chat_id,
+                                         text=f'При чтении события произошла ошибка {error_info}.')
+
 
         # запуск бота
         updater.start_polling()
