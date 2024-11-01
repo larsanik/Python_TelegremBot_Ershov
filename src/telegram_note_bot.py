@@ -333,7 +333,7 @@ class Calendar:
     def __init__(self):
         self.events = {}
 
-    # Создать метод create_event
+    # метод create_event
     def create_event(self, event_name, event_date, event_time, event_details):
         event_id = len(self.events) + 1
         event = {
@@ -345,6 +345,10 @@ class Calendar:
         }
         self.events[event_id] = event
         return event_id
+
+    # метод read_event
+    def read_event(self, id):
+        return
 # ******** Задание 8 Календарь END ********
 
 
