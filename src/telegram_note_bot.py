@@ -334,7 +334,7 @@ class Calendar:
         self.events = {}
 
     # метод create_event
-    def create_event(self, event_name, event_date, event_time, event_details):
+    def create_event(self, event_name, event_date, event_time, event_details) -> int:
         event_id = len(self.events) + 1
         event = {
             "id": event_id,
@@ -347,10 +347,10 @@ class Calendar:
         return event_id
 
     # метод read_event
-    def read_event(self, id_event):
+    def read_event(self, id_event) -> str:
         str_out = ''
         for key, val in self.events[id_event].items():
-            str_out = str_out + str(key) + ': ' + str(val) + '\n'
+            str_out = str_out + str(key) + ': ' + str(val) + ' | '
         return str_out
 
 
@@ -428,7 +428,7 @@ def main() -> None:
         calendar = Calendar()
 
         # обработчик для создания событий
-        def event_create_handler(update, context):
+        def event_create_handler(update, context) -> None:
             try:
                 # Взять данные о событии из сообщения пользователя
                 event_name = update.message.text[14:]
@@ -451,13 +451,13 @@ def main() -> None:
         updater.dispatcher.add_handler(CommandHandler('create_event', event_create_handler))
 
         # обработчик для чтения событий
-        def event_read_handler(update, context):
+        def event_read_handler(update, context) -> None:
             try:
                 text = update.message.text.replace('/read_event', '').replace(' ', '')
                 if text.isdigit():  # проверяем, что номер события число
                     id_event = int(text)
                 else:
-                    id_event = 0
+                    id_event = 0  # так как нумерация событий начинается с 1
                 if id_event in calendar.events.keys():
                     context.bot.send_message(chat_id=update.message.chat_id,
                                              text=calendar.read_event(id_event=id_event))
