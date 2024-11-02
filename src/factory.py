@@ -6,7 +6,7 @@ class Calendar:
         self.events = {}
 
     # метод create_event
-    def create_event(self, event_name, event_date, event_time, event_details):
+    def create_event(self, event_name, event_date, event_time, event_details) -> int:
         event_id = len(self.events) + 1
         event = {
             "id": event_id,
@@ -19,11 +19,15 @@ class Calendar:
         return event_id
 
     # метод read_event
-    def read_event(self, id_event):
+    def read_event(self, id_event) -> str:
         str_out = ''
         for key, val in self.events[id_event].items():
-            str_out = str_out + str(key) + ': ' + str(val) + '\n'
+            str_out = str_out + str(key) + ': ' + str(val) + ' | '
         return str_out
+
+    # метод edit_event
+    def edit_event(self, id_event, new_event_details) -> None:
+        self.events[id_event]['details'] = new_event_details
 
 
 calendar = Calendar()
@@ -36,5 +40,5 @@ for i in range(5):
     event_id = calendar.create_event(event_name, event_date, event_time, event_details)
 
 print(calendar.read_event(1))
-print(calendar.events.keys())
-
+print(calendar.edit_event(1, 'Новое описание события'))
+print(calendar.read_event(1))

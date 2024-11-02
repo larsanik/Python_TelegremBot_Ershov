@@ -32,7 +32,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # шаги ввода данных
-NAME, TEXT, READ = range(3)
+NAME, TEXT, READ, ID = range(4)
 
 
 # создаем заметку по полученным данным
@@ -353,6 +353,10 @@ class Calendar:
             str_out = str_out + str(key) + ': ' + str(val) + ' | '
         return str_out
 
+    # метод edit_event
+    def edit_event(self, id_event, new_event_details) -> None:
+        self.events[id_event]['details'] = new_event_details
+
 
 # ******** Задание 8 Календарь END ********
 
@@ -453,7 +457,7 @@ def main() -> None:
         # обработчик для чтения событий
         def event_read_handler(update, context) -> None:
             try:
-                text = update.message.text.replace('/read_event', '').replace(' ', '')
+                text = update.message.text.replace('/read_event', '').replace(' ', '')  # оставляем только номер
                 if text.isdigit():  # проверяем, что номер события число
                     id_event = int(text)
                 else:
@@ -472,6 +476,50 @@ def main() -> None:
 
         # Зарегистрировать обработчик, чтобы он вызывался по команде /read_event
         updater.dispatcher.add_handler(CommandHandler('read_event', event_read_handler))
+
+        # обработчик для редактирования событий
+        def event_edit_handler(update, context) -> int:
+            try:
+                text = update.message.text.replace('/edit_event', '').replace(' ', '')  # оставляем только номер
+                if text.isdigit():  # проверяем, что номер события число
+                    id_event = int(text)
+                else:
+                    id_event = 0  # так как нумерация событий начинается с 1
+                if id_event in calendar.events.keys():
+                    context.user_data['id_event'] = id_event
+                    context.bot.send_message(chat_id=update.message.chat_id,
+                                             text='Введите новое описание события.')
+                    return ID
+                else:
+                    context.bot.send_message(chat_id=update.message.chat_id,
+                                             text=f'Событие с номером {text} не найдено. Формат команды: '
+                                                  f'/edit_event <номер события> ')
+            except AttributeError as error_info:
+                # Отправить пользователю сообщение об ошибке
+                context.bot.send_message(chat_id=update.message.chat_id,
+                                         text=f'При редактировании события произошла ошибка {error_info}.')
+
+        # редактирование события
+        def edit_event(update, context) -> None:
+            try:
+                calendar.edit_event(context.user_data['id_event'], update.message.text)
+                # Отправить пользователю подтверждение
+                context.bot.send_message(chat_id=update.message.chat_id,
+                                         text=f"Событие {context.user_data['id_event']} отредактировано.")
+            except AttributeError as error_info:
+                # Отправить пользователю сообщение об ошибке
+                context.bot.send_message(chat_id=update.message.chat_id,
+                                         text=f'При редактировании события произошла ошибка {error_info}.')
+
+        # диалог для редактирования события, шаги ID, ТEXT
+        conv_handler_edit_event = ConversationHandler(
+            entry_points=[CommandHandler('edit_event', event_edit_handler)],
+            states={
+                ID: [MessageHandler(Filters.text & ~Filters.command, edit_event)],
+            },
+            fallbacks=[CommandHandler('cancel', cancel)],  # принудительный выход из диалога по команде /cancel
+        )
+        dispatcher.add_handler(conv_handler_edit_event)
 
         # запуск бота
         updater.start_polling()
