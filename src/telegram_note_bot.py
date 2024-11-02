@@ -114,6 +114,11 @@ def create_start_handler(update, context):
         /display - вывод списка заметок в порядке уменьшения длинны
         /key_on - включение виртуальной клавиатуры
         /key_off - выключение виртуальной клавиатуры
+        /create_event <название события> - создание события
+        /read_event <номер события> - чтение события
+        /edit_event <номер события> - редактирование события
+        /delete_event <номер события> - удаление события
+        /display_event - вывод списка событий
         /help - выводит справку по командам
         """
         context.bot.send_message(chat_id=update.message.chat_id, text=msg_start)
@@ -290,7 +295,12 @@ def key_on(update, context) -> None:
                       ['/delete'],
                       ['/display'],
                       ['/key_off'],
-                      ['/help']]
+                      ['/help'],
+                      ['/create_event'],
+                      ['/read_event'],
+                      ['/edit_event'],
+                      ['/delete_event'],
+                      ['/display_event']]
 
     update.message.reply_text(
         'Виртуальная клавиатура добавлена в бот.',
@@ -322,6 +332,11 @@ def help_view(update, context) -> None:
         /display - вывод списка заметок в порядке уменьшения длинны
         /key_on - включение виртуальной клавиатуры
         /key_off - выключение виртуальной клавиатуры
+        /create_event <название события> - создание события
+        /read_event <номер события> - чтение события
+        /edit_event <номер события> - редактирование события
+        /delete_event <номер события> - удаление события
+        /display_event - вывод списка событий
         /help - выводит справку по командам
         """
                               )
