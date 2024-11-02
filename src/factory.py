@@ -36,3 +36,5 @@ for i in range(5):
     event_id = calendar.create_event(event_name, event_date, event_time, event_details)
 
 print(calendar.read_event(1))
+print(calendar.events.keys())
+

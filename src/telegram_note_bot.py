@@ -19,8 +19,8 @@ from telegram.ext import (
     CommandHandler,
     MessageHandler,
     Filters,
-    ConversationHandler#,
-    #CallbackContext
+    ConversationHandler  # ,
+    # CallbackContext
 )
 import secrets  # API_TOKEN = '<ТОКЕN>'
 
@@ -352,6 +352,8 @@ class Calendar:
         for key, val in self.events[id_event].items():
             str_out = str_out + str(key) + ': ' + str(val) + '\n'
         return str_out
+
+
 # ******** Задание 8 Календарь END ********
 
 
@@ -444,18 +446,32 @@ def main() -> None:
                 # Отправить пользователю сообщение об ошибке
                 context.bot.send_message(chat_id=update.message.chat_id,
                                          text=f'При создании события произошла ошибка {error_info}.')
+
         # Зарегистрировать обработчик, чтобы он вызывался по команде /create_event
         updater.dispatcher.add_handler(CommandHandler('create_event', event_create_handler))
 
         # обработчик для чтения событий
         def event_read_handler(update, context):
             try:
-                ...
+                text = update.message.text.replace('/read_event', '').replace(' ', '')
+                if text.isdigit():  # проверяем, что номер события число
+                    id_event = int(text)
+                else:
+                    id_event = 0
+                if id_event in calendar.events.keys():
+                    context.bot.send_message(chat_id=update.message.chat_id,
+                                             text=calendar.read_event(id_event=id_event))
+                else:
+                    context.bot.send_message(chat_id=update.message.chat_id,
+                                             text=f'Событие с номером {text} не найдено. Формат команды: '
+                                                  f'/read_event <номер события> ')
             except AttributeError as error_info:
                 # Отправить пользователю сообщение об ошибке
                 context.bot.send_message(chat_id=update.message.chat_id,
                                          text=f'При чтении события произошла ошибка {error_info}.')
 
+        # Зарегистрировать обработчик, чтобы он вызывался по команде /read_event
+        updater.dispatcher.add_handler(CommandHandler('read_event', event_read_handler))
 
         # запуск бота
         updater.start_polling()
