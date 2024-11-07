@@ -372,6 +372,11 @@ class Calendar:
     def edit_event(self, id_event, new_event_details) -> None:
         self.events[id_event]['details'] = new_event_details
 
+    # метод delete_event
+    def delete_event(self, id_event) -> None:
+        del self.events[id_event]
+        return f'Событие номер {id_event} удалено.'
+
 
 # ******** Задание 8 Календарь END ********
 
@@ -535,6 +540,32 @@ def main() -> None:
             fallbacks=[CommandHandler('cancel', cancel)],  # принудительный выход из диалога по команде /cancel
         )
         dispatcher.add_handler(conv_handler_edit_event)
+
+        # обработчик для удаления событий
+        def event_delete_handler(update, context) -> None:
+            try:
+                text = update.message.text.replace('/delete_event', '').replace(' ', '')  # оставляем только номер
+                if text.isdigit():  # проверяем, что номер события число
+                    id_event = int(text)
+                else:
+                    id_event = 0  # так как нумерация событий начинается с 1
+                if id_event in calendar.events.keys():
+                    context.bot.send_message(chat_id=update.message.chat_id,
+                                             text=calendar.delete_event(id_event=id_event))
+                else:
+                    context.bot.send_message(chat_id=update.message.chat_id,
+                                             text=f'Событие с номером {text} не найдено. Формат команды: '
+                                                  f'/delete_event <номер события> ')
+            except AttributeError as error_info:
+                # Отправить пользователю сообщение об ошибке
+                context.bot.send_message(chat_id=update.message.chat_id,
+                                         text=f'При удалении события произошла ошибка {error_info}.')
+
+        # Зарегистрировать обработчик, чтобы он вызывался по команде /delete_event
+        updater.dispatcher.add_handler(CommandHandler('delete_event', event_delete_handler))
+
+
+
 
         # запуск бота
         updater.start_polling()
