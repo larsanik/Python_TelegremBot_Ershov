@@ -29,6 +29,10 @@ class Calendar:
     def edit_event(self, id_event, new_event_details) -> None:
         self.events[id_event]['details'] = new_event_details
 
+    # метод delete_event
+    def delete_event(self, id_event) -> None:
+        del self.events[id_event]
+
 
 calendar = Calendar()
 for i in range(5):
@@ -39,6 +43,16 @@ for i in range(5):
     # Создать событие с помощью метода create_event класса Calendar
     event_id = calendar.create_event(event_name, event_date, event_time, event_details)
 
-print(calendar.read_event(1))
-print(calendar.edit_event(1, 'Новое описание события'))
-print(calendar.read_event(1))
+# print(calendar.read_event(1))
+# print(calendar.edit_event(1, 'Новое описание события'))
+# print(calendar.read_event(1))
+# print(calendar.events)
+
+for i in calendar.events.items():
+    print(i)
+print('************************************************************************')
+calendar.delete_event(3)
+calendar.delete_event(5)
+
+for i in calendar.events.items():
+    print(i)
