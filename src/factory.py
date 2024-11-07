@@ -33,6 +33,16 @@ class Calendar:
     def delete_event(self, id_event) -> None:
         del self.events[id_event]
 
+    # метод display_event
+    def display_event(self) -> str:
+        str_out = ''
+        for el in self.events.items():
+            # print(el[1].items())
+            for key, val in el[1].items():
+                str_out = str_out + str(key) + ': ' + str(val) + ' | '
+            str_out = str_out + '\n'
+        return str_out
+
 
 calendar = Calendar()
 for i in range(5):
@@ -48,11 +58,12 @@ for i in range(5):
 # print(calendar.read_event(1))
 # print(calendar.events)
 
-for i in calendar.events.items():
-    print(i)
-print('************************************************************************')
+# for i in calendar.events.items():
+#     print(i)
+# print('************************************************************************')
 calendar.delete_event(3)
 calendar.delete_event(5)
-
-for i in calendar.events.items():
-    print(i)
+#
+# for i in calendar.events.items():
+#     print(i)
+print(calendar.display_event())

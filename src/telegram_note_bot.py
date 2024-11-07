@@ -373,10 +373,19 @@ class Calendar:
         self.events[id_event]['details'] = new_event_details
 
     # метод delete_event
-    def delete_event(self, id_event) -> None:
+    def delete_event(self, id_event) -> str:
         del self.events[id_event]
         return f'Событие номер {id_event} удалено.'
 
+    # метод display_event
+    def display_event(self) -> str:
+        str_out = ''
+        for el in self.events.items():
+            # print(el[1].items())
+            for key, val in el[1].items():
+                str_out = str_out + str(key) + ': ' + str(val) + ' | '
+            str_out = str_out + '\n'
+        return str_out
 
 # ******** Задание 8 Календарь END ********
 
@@ -564,7 +573,22 @@ def main() -> None:
         # Зарегистрировать обработчик, чтобы он вызывался по команде /delete_event
         updater.dispatcher.add_handler(CommandHandler('delete_event', event_delete_handler))
 
+        # обработчик для вывода списка событий
+        def event_display_handler(update, context) -> None:
+            try:
+                if calendar.events:
+                    context.bot.send_message(chat_id=update.message.chat_id,
+                                             text=calendar.display_event())
+                else:
+                    context.bot.send_message(chat_id=update.message.chat_id,
+                                             text=f'В календаре нет событий.')
+            except AttributeError as error_info:
+                # Отправить пользователю сообщение об ошибке
+                context.bot.send_message(chat_id=update.message.chat_id,
+                                         text=f'При удалении события произошла ошибка {error_info}.')
 
+        # Зарегистрировать обработчик, чтобы он вызывался по команде /delete_event
+        updater.dispatcher.add_handler(CommandHandler('display_event', event_display_handler))
 
 
         # запуск бота
