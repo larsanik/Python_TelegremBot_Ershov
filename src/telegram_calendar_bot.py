@@ -1,15 +1,8 @@
-# *****************************************************************************
-# Основы объектно-ориентированного программирования
-# Задание 8.
-# Добавьте в приложение класс Calendar
-# 1. Добавьте в приложение класс Calendar который будет содержать методы для создания, чтения, редактирования и
-# удаления событий, а также отображения всех событий. Для работы с календарем вам потребуются библиотеки os и datetime.
-# Импортируйте их в начале кода.
-# 2. Добавьте и зарегистрируйте обработчики команд для создания, чтения, редактирования и удаления событий, а также
-# отображения всех событий.
-# 3. Затем включите этот класс в основную функцию приложения (функция main()), чтобы дать пользователю возможность
-# создавать, читать, редактировать и удалять события, а также отображать весь список событий.
-# *****************************************************************************
+"""Телеграмм бот календарь
+Задание 8
+Чистый код
+pylint & flake8"""
+
 import logging
 import datetime
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -33,7 +26,7 @@ logger = logging.getLogger(__name__)
 ID = range(1)
 
 
-def cancel(update, context) -> int:
+def cancel(update, context):
     """Выход из диалога по команде /cancel."""
     try:
         user = update.message.from_user
@@ -157,7 +150,6 @@ class Calendar:
                 str_out = str_out + str(key) + ': ' + str(val) + ' | '
             str_out = str_out + '\n'
         return str_out
-
 
 
 def main() -> None:
@@ -306,7 +298,7 @@ def main() -> None:
                                              text=calendar.display_event())
                 else:
                     context.bot.send_message(chat_id=update.message.chat_id,
-                                             text=f'В календаре нет событий.')
+                                             text='В календаре нет событий.')
             except AttributeError as error_info:
                 # Отправить пользователю сообщение об ошибке
                 context.bot.send_message(chat_id=update.message.chat_id,
